@@ -6,9 +6,13 @@ package chess;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessPosition {
+public class ChessPosition { //IMPLEMENTEI
+    private int posRow = 0;
+    private int posCol = 0;
 
     public ChessPosition(int row, int col) {
+        posRow = row;
+        posCol = col;
     }
 
     /**
@@ -16,7 +20,7 @@ public class ChessPosition {
      * 1 codes for the bottom row
      */
     public int getRow() {
-        throw new RuntimeException("Not implemented");
+        return(posRow);
     }
 
     /**
@@ -24,6 +28,6 @@ public class ChessPosition {
      * 1 codes for the left row
      */
     public int getColumn() {
-        throw new RuntimeException("Not implemented");
+        return(posCol);
     }
 }
