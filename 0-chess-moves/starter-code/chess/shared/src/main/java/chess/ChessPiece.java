@@ -72,7 +72,7 @@ public class ChessPiece {
             case QUEEN:
                 break;
             case BISHOP:
-                break;
+                return new BishopMovement().validMoves(myPosition, board, this.teamColor);
             case PieceType.KNIGHT: //CODE
                 break;
             case PieceType.KING:

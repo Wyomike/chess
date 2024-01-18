@@ -30,14 +30,11 @@ public class KingMovement implements ChessPieceMovement {
     }
 
     public boolean validMove(ChessPosition end, ChessBoard board, ChessGame.TeamColor color) {
-        if(end.getRow() > 7 || end.getColumn() > 7) {
+        if(end.getRow() > 7 || end.getColumn() > 7 || end.getRow() < 0 || end.getColumn() < 0) {
             return false;
         }
         else if (board.getPiece(end) != null) {
-            if (board.getPiece(end).getTeamColor() == color) {
-                return false;
-            }
-            return true;
+            return board.getPiece(end).getTeamColor() != color;
         }
         else {
             return true;

@@ -37,6 +37,7 @@ public class ChessPosition {
     public int getRow() {
         return(posRow);
     }
+    public void setRow(int row){posRow = row;}
 
     /**
      * @return which column this position is in
@@ -45,4 +46,5 @@ public class ChessPosition {
     public int getColumn() {
         return(posCol);
     }
+    public void setCol(int col){posCol = col;}
 }
