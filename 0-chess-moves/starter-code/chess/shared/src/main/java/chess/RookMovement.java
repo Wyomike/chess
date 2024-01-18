@@ -3,12 +3,12 @@ package chess;
 import java.util.Collection;
 import java.util.HashSet;
 
-public class BishopMovement implements ChessPieceMovement {
+public class RookMovement implements ChessPieceMovement {
     private boolean pieceObstructs;
 
     public Collection<ChessMove> validMoves(ChessPosition start, ChessBoard board, ChessGame.TeamColor color) {
         HashSet<ChessMove> pieceMoves = new HashSet<>();
-        ChessPosition nextMove = new ChessPosition(start.getRow() + 1, start.getColumn() + 1);
+        ChessPosition nextMove = new ChessPosition(start.getRow() + 1, start.getColumn());
         boolean obstructed = false;
         pieceObstructs = false;
         while(validMove(nextMove, board, color) && !obstructed) {
@@ -16,21 +16,10 @@ public class BishopMovement implements ChessPieceMovement {
             obstructed = pieceObstructs; //to allow a move to be added, then to stop adding.
             pieceMoves.add(new ChessMove(start, end, null));
             nextMove.setRow(nextMove.getRow() + 1);
-            nextMove.setCol(nextMove.getColumn() + 1);
-        }
-        nextMove.setRow(start.getRow() + 1);
-        nextMove.setCol(start.getColumn() - 1);
-        obstructed = false;
-        pieceObstructs = false;
-        while(validMove(nextMove, board, color) && !obstructed) {
-            ChessPosition end = new ChessPosition(nextMove.getRow(), nextMove.getColumn());
-            obstructed = pieceObstructs;
-            pieceMoves.add(new ChessMove(start, end, null));
-            nextMove.setRow(nextMove.getRow() + 1);
-            nextMove.setCol(nextMove.getColumn() - 1);
+            nextMove.setCol(nextMove.getColumn());
         }
         nextMove.setRow(start.getRow() - 1);
-        nextMove.setCol(start.getColumn() - 1);
+        nextMove.setCol(start.getColumn());
         obstructed = false;
         pieceObstructs = false;
         while(validMove(nextMove, board, color) && !obstructed) {
@@ -38,9 +27,9 @@ public class BishopMovement implements ChessPieceMovement {
             obstructed = pieceObstructs;
             pieceMoves.add(new ChessMove(start, end, null));
             nextMove.setRow(nextMove.getRow() - 1);
-            nextMove.setCol(nextMove.getColumn() - 1);
+            nextMove.setCol(nextMove.getColumn());
         }
-        nextMove.setRow(start.getRow() - 1);
+        nextMove.setRow(start.getRow());
         nextMove.setCol(start.getColumn() + 1);
         obstructed = false;
         pieceObstructs = false;
@@ -48,8 +37,19 @@ public class BishopMovement implements ChessPieceMovement {
             ChessPosition end = new ChessPosition(nextMove.getRow(), nextMove.getColumn());
             obstructed = pieceObstructs;
             pieceMoves.add(new ChessMove(start, end, null));
-            nextMove.setRow(nextMove.getRow() - 1);
+            nextMove.setRow(nextMove.getRow());
             nextMove.setCol(nextMove.getColumn() + 1);
+        }
+        nextMove.setRow(start.getRow());
+        nextMove.setCol(start.getColumn() - 1);
+        obstructed = false;
+        pieceObstructs = false;
+        while(validMove(nextMove, board, color) && !obstructed) {
+            ChessPosition end = new ChessPosition(nextMove.getRow(), nextMove.getColumn());
+            obstructed = pieceObstructs;
+            pieceMoves.add(new ChessMove(start, end, null));
+            nextMove.setRow(nextMove.getRow());
+            nextMove.setCol(nextMove.getColumn() - 1);
         }
         return pieceMoves;
     }

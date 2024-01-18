@@ -74,11 +74,11 @@ public class ChessPiece {
             case BISHOP:
                 return new BishopMovement().validMoves(myPosition, board, this.teamColor);
             case PieceType.KNIGHT: //CODE
-                break;
+                return new KnightMovement().validMoves(myPosition, board, this.teamColor);
             case PieceType.KING:
                 return new KingMovement().validMoves(myPosition, board, this.teamColor);
             case ROOK:
-                break;
+                return new RookMovement().validMoves(myPosition, board, this.teamColor);
         }
         throw new RuntimeException("Not implemented"); //LEAVE FOR LAST
     }

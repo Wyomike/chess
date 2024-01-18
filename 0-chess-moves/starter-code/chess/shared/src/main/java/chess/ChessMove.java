@@ -19,7 +19,7 @@ public class ChessMove {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChessMove chessMove = (ChessMove) o;
-        System.out.println(this.toString());
+        //System.out.println(this.toString());
         return Objects.equals(start, chessMove.start) && Objects.equals(end, chessMove.end) && promotionType == chessMove.promotionType;
     }
     @Override

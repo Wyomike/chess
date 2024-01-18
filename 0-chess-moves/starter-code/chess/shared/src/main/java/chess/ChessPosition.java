@@ -29,6 +29,10 @@ public class ChessPosition {
         posRow = row;
         posCol = col;
     }
+    public ChessPosition(ChessPosition position) {
+        posRow = position.getRow();
+        posCol = position.getColumn();
+    }
 
     /**
      * @return which row this position is in
