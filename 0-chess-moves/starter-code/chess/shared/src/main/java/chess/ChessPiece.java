@@ -70,7 +70,7 @@ public class ChessPiece {
             case PieceType.PAWN: //DO STUFF
                 break;
             case QUEEN:
-                break;
+                return new QueenMovement().validMoves(myPosition, board, this.teamColor);
             case BISHOP:
                 return new BishopMovement().validMoves(myPosition, board, this.teamColor);
             case PieceType.KNIGHT: //CODE
