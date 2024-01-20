@@ -68,7 +68,7 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         switch(board.getPiece(myPosition).getPieceType()) {
             case PieceType.PAWN: //DO STUFF
-                break;
+                return new PawnMovement().validMoves(myPosition, board, this.teamColor);
             case QUEEN:
                 return new QueenMovement().validMoves(myPosition, board, this.teamColor);
             case BISHOP:
