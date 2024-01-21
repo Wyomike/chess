@@ -22,10 +22,6 @@ public class KingMovement implements ChessPieceMovement {
         if (validMove(end, board, color)) pieceMoves.add(new ChessMove(start, end, null));
         end = new ChessPosition(start.getRow(), start.getColumn()-1);
         if (validMove(end, board, color)) pieceMoves.add(new ChessMove(start, end, null));
-        // Make chessmoves that can go +- 1 in each direction with promotion type null.
-        //for (int i = 0; i < pieceMoves.size(); ++i) {
-            //System.out(pieceMoves.toString());
-        //}
         return pieceMoves;
     }
 
