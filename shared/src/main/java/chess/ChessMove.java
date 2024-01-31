@@ -10,42 +10,42 @@ import java.util.Objects;
  */
 public class ChessMove {
 
-    private ChessPosition start;
-    private ChessPosition end;
-    private ChessPiece.PieceType promotionType;
+    ChessPosition start;
+    ChessPosition end;
+    ChessPiece.PieceType promotion;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChessMove chessMove = (ChessMove) o;
-        //System.out.println(this.toString());
-        return Objects.equals(start, chessMove.start) && Objects.equals(end, chessMove.end) && promotionType == chessMove.promotionType;
+        return Objects.equals(start, chessMove.start) && Objects.equals(end, chessMove.end) && promotion == chessMove.promotion;
     }
+
     @Override
     public int hashCode() {
-        return Objects.hash(start, end, promotionType);
+        return Objects.hash(start, end, promotion);
     }
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
         start = startPosition;
         end = endPosition;
-        promotionType = promotionPiece;
+        promotion = promotionPiece;
     }
 
     /**
      * @return ChessPosition of starting location
      */
     public ChessPosition getStartPosition() {
-        return(start);
+        return start;
     }
 
     /**
      * @return ChessPosition of ending location
      */
     public ChessPosition getEndPosition() {
-        return(end);
+        return end;
     }
 
     /**
@@ -55,15 +55,11 @@ public class ChessMove {
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
     public ChessPiece.PieceType getPromotionPiece() {
-        return(promotionType);
+        return promotion;
     }
 
     @Override
     public String toString() {
-        return "ChessMove{" +
-                "start=" + start.getRow() + "," + start.getColumn() +
-                ", end=" + end.getRow() + "," + end.getColumn() +
-                ", promotionType=" + promotionType +
-                '}';
+        return "end=" + end + ", pro = " + promotion;
     }
 }

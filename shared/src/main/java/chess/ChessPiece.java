@@ -11,25 +11,29 @@ import java.util.Objects;
  */
 public class ChessPiece {
 
-    private ChessGame.TeamColor teamColor;
-    private ChessPiece.PieceType pieceType;
+    ChessGame.TeamColor color;
+    PieceType type;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChessPiece that = (ChessPiece) o;
-        return teamColor == that.teamColor && pieceType == that.pieceType;
+        return color == that.color && type == that.type;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(teamColor, pieceType);
+        return Objects.hash(color, type);
     }
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
-        teamColor = pieceColor;
-        pieceType = type;
+        this.color = pieceColor;
+        this.type = type;
+    }
+    public ChessPiece(ChessPiece piece) {
+        this.color = piece.color;
+        this.type = piece.type;
     }
 
     /**
@@ -45,17 +49,17 @@ public class ChessPiece {
     }
 
     /**
-     * @return Which team this chess piece belongs to DONE
+     * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        return(teamColor);
+        return color;
     }
 
     /**
-     * @return which type of chess piece this piece is DONE
+     * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        return(pieceType);
+        return type;
     }
 
     /**
@@ -66,20 +70,20 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        switch(board.getPiece(myPosition).getPieceType()) {
-            case PieceType.PAWN:
-                return new PawnMovement().validMoves(myPosition, board, this.teamColor);
-            case QUEEN:
-                return new QueenMovement().validMoves(myPosition, board, this.teamColor);
-            case BISHOP:
-                return new BishopMovement().validMoves(myPosition, board, this.teamColor);
-            case PieceType.KNIGHT:
-                return new KnightMovement().validMoves(myPosition, board, this.teamColor);
-            case PieceType.KING:
-                return new KingMovement().validMoves(myPosition, board, this.teamColor);
+        switch(type) {
             case ROOK:
-                return new RookMovement().validMoves(myPosition, board, this.teamColor);
+                return new RookMovement().validMoves(myPosition, board);
+            case BISHOP:
+                return new BishopMovement().validMoves(myPosition, board);
+            case QUEEN:
+                return new QueenMovement().validMoves(myPosition, board);
+            case KING:
+                return new KingMovement().validMoves(myPosition, board);
+            case KNIGHT:
+                return new KnightMovement().validMoves(myPosition, board);
+            case PAWN:
+                return new PawnMovement().validMoves(myPosition, board);
         }
-        throw new RuntimeException("Not implemented"); //LEAVE FOR LAST
+        return new RookMovement().validMoves(myPosition, board);
     }
 }

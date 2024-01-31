@@ -3,118 +3,81 @@ package chess;
 import java.util.Collection;
 import java.util.HashSet;
 
-public class QueenMovement implements ChessPieceMovement {
-    private boolean pieceObstructs;
-
-    public Collection<ChessMove> validMoves(ChessPosition start, ChessBoard board, ChessGame.TeamColor color) {
-        HashSet<ChessMove> pieceMoves = new HashSet<>();
-        //Literally just bishop + rook code
-        ChessPosition nextMove = new ChessPosition(start.getRow() + 1, start.getColumn() + 1);
-        boolean obstructed = false;
-        pieceObstructs = false;
-        while(validMove(nextMove, board, color) && !obstructed) {
-            ChessPosition end = new ChessPosition(nextMove.getRow(), nextMove.getColumn());
-            obstructed = pieceObstructs; //to allow a move to be added, then to stop adding.
-            pieceMoves.add(new ChessMove(start, end, null));
-            nextMove.setRow(nextMove.getRow() + 1);
-            nextMove.setCol(nextMove.getColumn() + 1);
+public class QueenMovement implements PieceMovement {
+    boolean obstructed = false;
+    public Collection<ChessMove> validMoves(ChessPosition start, ChessBoard board) {
+        HashSet<ChessMove> moves = new HashSet<> ();
+        ChessPosition tempEnd = new ChessPosition(start.getRow() + 1, start.getColumn() + 1);
+        while (!obstructed && isInBoard(tempEnd)) { //up right
+            ChessPosition end = new ChessPosition(tempEnd.getRow(), tempEnd.getColumn());
+            if (isValidMove(start, end, board)) moves.add(new ChessMove(start, end, null));
+            tempEnd = new ChessPosition(tempEnd.getRow() + 1, tempEnd.getColumn() + 1);
         }
-        nextMove.setRow(start.getRow() + 1);
-        nextMove.setCol(start.getColumn() - 1);
         obstructed = false;
-        pieceObstructs = false;
-        while(validMove(nextMove, board, color) && !obstructed) {
-            ChessPosition end = new ChessPosition(nextMove.getRow(), nextMove.getColumn());
-            obstructed = pieceObstructs;
-            pieceMoves.add(new ChessMove(start, end, null));
-            nextMove.setRow(nextMove.getRow() + 1);
-            nextMove.setCol(nextMove.getColumn() - 1);
+        tempEnd = new ChessPosition(start.getRow() - 1, start.getColumn() + 1);
+        while (!obstructed && isInBoard(tempEnd)) { //down right
+            ChessPosition end = new ChessPosition(tempEnd.getRow(), tempEnd.getColumn());
+            if (isValidMove(start, end, board)) moves.add(new ChessMove(start, end, null));
+            tempEnd = new ChessPosition(tempEnd.getRow() - 1, tempEnd.getColumn() + 1);
         }
-        nextMove.setRow(start.getRow() - 1);
-        nextMove.setCol(start.getColumn() - 1);
         obstructed = false;
-        pieceObstructs = false;
-        while(validMove(nextMove, board, color) && !obstructed) {
-            ChessPosition end = new ChessPosition(nextMove.getRow(), nextMove.getColumn());
-            obstructed = pieceObstructs;
-            pieceMoves.add(new ChessMove(start, end, null));
-            nextMove.setRow(nextMove.getRow() - 1);
-            nextMove.setCol(nextMove.getColumn() - 1);
+        tempEnd = new ChessPosition(start.getRow() + 1, start.getColumn() - 1);
+        while (!obstructed && isInBoard(tempEnd)) { //up left
+            ChessPosition end = new ChessPosition(tempEnd.getRow(), tempEnd.getColumn());
+            if (isValidMove(start, end, board)) moves.add(new ChessMove(start, end, null));
+            tempEnd = new ChessPosition(tempEnd.getRow() + 1, tempEnd.getColumn() - 1);
         }
-        nextMove.setRow(start.getRow() - 1);
-        nextMove.setCol(start.getColumn() + 1);
         obstructed = false;
-        pieceObstructs = false;
-        while(validMove(nextMove, board, color) && !obstructed) {
-            ChessPosition end = new ChessPosition(nextMove.getRow(), nextMove.getColumn());
-            obstructed = pieceObstructs;
-            pieceMoves.add(new ChessMove(start, end, null));
-            nextMove.setRow(nextMove.getRow() - 1);
-            nextMove.setCol(nextMove.getColumn() + 1);
+        tempEnd = new ChessPosition(start.getRow() - 1, start.getColumn() - 1);
+        while (!obstructed && isInBoard(tempEnd)) { //down left
+            ChessPosition end = new ChessPosition(tempEnd.getRow(), tempEnd.getColumn());
+            if (isValidMove(start, end, board)) moves.add(new ChessMove(start, end, null));
+            tempEnd = new ChessPosition(tempEnd.getRow() - 1, tempEnd.getColumn() - 1);
         }
-        nextMove.setRow(start.getRow() + 1); //Have to put these four lines in that aren't there normally in rook.
-        nextMove.setCol(start.getColumn());
         obstructed = false;
-        pieceObstructs = false;
-        while(validMove(nextMove, board, color) && !obstructed) {
-            ChessPosition end = new ChessPosition(nextMove.getRow(), nextMove.getColumn());
-            obstructed = pieceObstructs; //to allow a move to be added, then to stop adding.
-            pieceMoves.add(new ChessMove(start, end, null));
-            nextMove.setRow(nextMove.getRow() + 1);
-            nextMove.setCol(nextMove.getColumn());
+        tempEnd = new ChessPosition(start.getRow() + 1, start.getColumn());
+        while (!obstructed && isInBoard(tempEnd)) { //up
+            ChessPosition end = new ChessPosition(tempEnd.getRow(), tempEnd.getColumn());
+            if (isValidMove(start, end, board)) moves.add(new ChessMove(start, end, null));
+            tempEnd = new ChessPosition(tempEnd.getRow() + 1, tempEnd.getColumn());
         }
-        nextMove.setRow(start.getRow() - 1);
-        nextMove.setCol(start.getColumn());
         obstructed = false;
-        pieceObstructs = false;
-        while(validMove(nextMove, board, color) && !obstructed) {
-            ChessPosition end = new ChessPosition(nextMove.getRow(), nextMove.getColumn());
-            obstructed = pieceObstructs;
-            pieceMoves.add(new ChessMove(start, end, null));
-            nextMove.setRow(nextMove.getRow() - 1);
-            nextMove.setCol(nextMove.getColumn());
+        tempEnd = new ChessPosition(start.getRow() - 1, start.getColumn());
+        while (!obstructed && isInBoard(tempEnd)) { //down
+            ChessPosition end = new ChessPosition(tempEnd.getRow(), tempEnd.getColumn());
+            if (isValidMove(start, end, board)) moves.add(new ChessMove(start, end, null));
+            tempEnd = new ChessPosition(tempEnd.getRow() - 1, tempEnd.getColumn());
         }
-        nextMove.setRow(start.getRow());
-        nextMove.setCol(start.getColumn() + 1);
         obstructed = false;
-        pieceObstructs = false;
-        while(validMove(nextMove, board, color) && !obstructed) {
-            ChessPosition end = new ChessPosition(nextMove.getRow(), nextMove.getColumn());
-            obstructed = pieceObstructs;
-            pieceMoves.add(new ChessMove(start, end, null));
-            nextMove.setRow(nextMove.getRow());
-            nextMove.setCol(nextMove.getColumn() + 1);
+        tempEnd = new ChessPosition(start.getRow(), start.getColumn() + 1);
+        while (!obstructed && isInBoard(tempEnd)) { //right
+            ChessPosition end = new ChessPosition(tempEnd.getRow(), tempEnd.getColumn());
+            if (isValidMove(start, end, board)) moves.add(new ChessMove(start, end, null));
+            tempEnd = new ChessPosition(tempEnd.getRow(), tempEnd.getColumn() + 1);
         }
-        nextMove.setRow(start.getRow());
-        nextMove.setCol(start.getColumn() - 1);
         obstructed = false;
-        pieceObstructs = false;
-        while(validMove(nextMove, board, color) && !obstructed) {
-            ChessPosition end = new ChessPosition(nextMove.getRow(), nextMove.getColumn());
-            obstructed = pieceObstructs;
-            pieceMoves.add(new ChessMove(start, end, null));
-            nextMove.setRow(nextMove.getRow());
-            nextMove.setCol(nextMove.getColumn() - 1);
+        tempEnd = new ChessPosition(start.getRow(), start.getColumn() - 1);
+        while (!obstructed && isInBoard(tempEnd)) { //left
+            ChessPosition end = new ChessPosition(tempEnd.getRow(), tempEnd.getColumn());
+            if (isValidMove(start, end, board)) moves.add(new ChessMove(start, end, null));
+            tempEnd = new ChessPosition(tempEnd.getRow(), tempEnd.getColumn() - 1);
         }
 
-        return pieceMoves;
+        return moves;
     }
 
-    public boolean validMove(ChessPosition end, ChessBoard board, ChessGame.TeamColor color) {
-        if(end.getRow() > 8 || end.getColumn() > 8 || end.getRow() < 1 || end.getColumn() < 1) {
+    public boolean isValidMove(ChessPosition start, ChessPosition end, ChessBoard board) {
+        if (!isInBoard(end)) {
             return false;
         }
         else if (board.getPiece(end) != null) {
-            if (board.getPiece(end).getTeamColor() != color) {
-                pieceObstructs = true;
-                return true;
-            }
-            else {
-                return false;
-            }
+            obstructed = true;
+            if (board.getPiece(end).getTeamColor() != board.getPiece(start).getTeamColor()) return true;
+            else return false;
         }
-        else {
-            return true;
-        }
+        return true;
+    }
+    public boolean isInBoard(ChessPosition position) {
+        return position.getRow() <= 8 && position.getRow() >= 1 && position.getColumn() >= 1 && position.getColumn() <= 8;
     }
 }
