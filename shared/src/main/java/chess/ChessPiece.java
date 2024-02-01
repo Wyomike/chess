@@ -86,4 +86,27 @@ public class ChessPiece {
         }
         return new RookMovement().validMoves(myPosition, board);
     }
+
+    @Override
+    public String toString() {
+        String colorStr = "";
+        String typeStr = "";
+        if (color == ChessGame.TeamColor.WHITE) colorStr = "w";
+        else colorStr = "b";
+        switch(type) {
+            case ROOK:
+                typeStr = "R";
+            case BISHOP:
+                typeStr = "B";
+            case QUEEN:
+                typeStr = "Q";
+            case KING:
+                typeStr = "K";
+            case KNIGHT:
+                typeStr = "H";
+            case PAWN:
+                typeStr = "P";
+        }
+        return colorStr + typeStr;
+    }
 }

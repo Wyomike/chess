@@ -62,7 +62,13 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        TeamColor color = board.getPiece(move.start).getTeamColor();
+        if (!isInCheck(color)) {
+            board.movePiece(move.getStartPosition(), move.getEndPosition());
+        }
+        else {
+            throw new RuntimeException("Not implemented");
+        }
     }
 
     /**
@@ -73,18 +79,20 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) { //Check diags, horizontal and veritcal, and knight pos relative to king?
         ChessPosition kingLoc = board.getKing(teamColor);
-        return dangerKnight(kingLoc);
+        boolean danger = false;
+        if (dangerKnight(kingLoc)) danger = true;
+        return danger;
 
 
         //throw new RuntimeException("Not implemented");
     }
-    private boolean dangerKnight(ChessPosition position) {
+    private boolean dangerKnight(ChessPosition position) { //think about just doing an iterable piece list...
         for (int i = -1; i <= 1; i += 2) {
             for (int j = -2; j <= 2; j += 2) {
                 ChessPosition check1 = new ChessPosition(position.getRow() + i, position.getColumn() + j);
                 ChessPosition check2 = new ChessPosition(position.getRow() + j, position.getColumn() + i);
-                if (board.getPiece(check1).getPieceType() == ChessPiece.PieceType.KNIGHT) return true;
-                if (board.getPiece(check2).getPieceType() == ChessPiece.PieceType.KNIGHT) return true;
+                if (validPiece(check1) && board.getPiece(check1).getPieceType() == ChessPiece.PieceType.KNIGHT) return true;
+                if (validPiece(check2) && board.getPiece(check2).getPieceType() == ChessPiece.PieceType.KNIGHT) return true;
             }
         }
         return false;
@@ -118,6 +126,13 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         this.board = board;
+    }
+
+    private boolean validPiece(ChessPosition position) {
+        return isInBoard(position) && board.getPiece(position) != null;
+    }
+    private boolean isInBoard(ChessPosition position) {
+        return position.getRow() <= 8 && position.getRow() >= 1 && position.getColumn() >= 1 && position.getColumn() <= 8;
     }
 
     /**

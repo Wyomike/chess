@@ -11,6 +11,8 @@ import java.util.Arrays;
 public class ChessBoard {
 
     ChessPiece[][] board = new ChessPiece[8][8];
+    ChessPiece[] whitePieces = new ChessPiece[12]; //actually a list would probably be better...
+    ChessPiece[] blackPieces = new ChessPiece[12];
     //ChessPosition whiteKing = new ChessPosition(0, 4);
     //ChessPosition blackKing = new ChessPosition(7, 4);
 
@@ -38,6 +40,11 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         board[position.getRow() - 1][position.getColumn() - 1] = piece;
+    }
+
+    public void movePiece(ChessPosition start, ChessPosition end) {
+        board[end.getRow()][end.getColumn()] = getPiece(start);
+        board[start.getRow()][start.getColumn()] = null;
     }
 
     /**
@@ -84,11 +91,30 @@ public class ChessBoard {
     public ChessPosition getKing(ChessGame.TeamColor color) {
         for (int i = 0; i < 7; ++i) {
             for (int j = 0; j < 7; ++j) {
-                if(board[i][j].getPieceType() == ChessPiece.PieceType.KING && board[i][j].getTeamColor() == color) {
+                if(board[i][j] != null && board[i][j].getPieceType() == ChessPiece.PieceType.KING && board[i][j].getTeamColor() == color) {
                     return new ChessPosition(i,j);
                 }
             }
         }
         return null; //shouldn't ever happen.
+    }
+
+    @Override
+    public String toString() {
+        String boardStr = "";
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                boardStr += "-";
+                if (board[i][j] == null) {
+                    boardStr += " ";
+                }
+                else {
+                    boardStr += board[i][j].toString();
+                }
+                boardStr += "-";
+            }
+            boardStr += "\n";
+        }
+        return boardStr;
     }
 }
