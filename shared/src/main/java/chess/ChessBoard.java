@@ -43,8 +43,9 @@ public class ChessBoard {
     }
 
     public void movePiece(ChessPosition start, ChessPosition end) {
-        board[end.getRow()][end.getColumn()] = getPiece(start);
-        board[start.getRow()][start.getColumn()] = null;
+        board[end.getRow() - 1][end.getColumn() - 1] = getPiece(start);
+        board[start.getRow() - 1][start.getColumn() - 1] = null;
+        ChessPiece temp = board[end.getRow() - 1][end.getColumn() - 1];
     }
 
     /**
@@ -101,20 +102,20 @@ public class ChessBoard {
 
     @Override
     public String toString() {
-        String boardStr = "";
-        for (int i = 0; i < 8; ++i) {
+        StringBuilder boardStr = new StringBuilder();
+        for (int i = 7; i >= 0; --i) {
             for (int j = 0; j < 8; ++j) {
-                boardStr += "-";
+                boardStr.append(" ");
                 if (board[i][j] == null) {
-                    boardStr += " ";
+                    boardStr.append("  ");
                 }
                 else {
-                    boardStr += board[i][j].toString();
+                    boardStr.append(board[i][j].toString());
                 }
-                boardStr += "-";
+                boardStr.append(" ");
             }
-            boardStr += "\n";
+            boardStr.append("\n");
         }
-        return boardStr;
+        return boardStr.toString();
     }
 }

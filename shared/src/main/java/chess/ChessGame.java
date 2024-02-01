@@ -63,12 +63,12 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         TeamColor color = board.getPiece(move.start).getTeamColor();
-        if (!isInCheck(color)) {
+        //if (!isInCheck(color)) {
             board.movePiece(move.getStartPosition(), move.getEndPosition());
-        }
-        else {
-            throw new RuntimeException("Not implemented");
-        }
+        //}
+        //else {
+        //    throw new RuntimeException("Not implemented");
+        //}
     }
 
     /**
@@ -132,6 +132,7 @@ public class ChessGame {
         return isInBoard(position) && board.getPiece(position) != null;
     }
     private boolean isInBoard(ChessPosition position) {
+        String test = board.toString();
         return position.getRow() <= 8 && position.getRow() >= 1 && position.getColumn() >= 1 && position.getColumn() <= 8;
     }
 

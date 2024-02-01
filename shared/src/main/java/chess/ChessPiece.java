@@ -89,24 +89,30 @@ public class ChessPiece {
 
     @Override
     public String toString() {
-        String colorStr = "";
-        String typeStr = "";
-        if (color == ChessGame.TeamColor.WHITE) colorStr = "w";
-        else colorStr = "b";
+        StringBuilder colorStr = new StringBuilder();
+        //String retString = "";
+        if (color == ChessGame.TeamColor.WHITE) colorStr.append("w");
+        else colorStr.append("b");
         switch(type) {
             case ROOK:
-                typeStr = "R";
+                return colorStr + "R";
+                //colorStr.append("R");
             case BISHOP:
-                typeStr = "B";
+                return colorStr + "B";
+                //colorStr.append("B");
             case QUEEN:
-                typeStr = "Q";
+                return colorStr + "Q";
+                //colorStr.append("Q");
             case KING:
-                typeStr = "K";
+                return colorStr + "K";
+                //colorStr.append("K");
             case KNIGHT:
-                typeStr = "H";
+                return colorStr + "H";
+                //colorStr.append("H");
             case PAWN:
-                typeStr = "P";
+                return colorStr + "P";
+                //colorStr.append("P");
         }
-        return colorStr + typeStr;
+        return "ERR";
     }
 }
