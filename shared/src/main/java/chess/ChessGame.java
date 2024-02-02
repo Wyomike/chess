@@ -62,9 +62,16 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        TeamColor color = board.getPiece(move.start).getTeamColor();
+        TeamColor color = board.getPiece(move.getStartPosition()).getTeamColor();
+        if (color != getTeamTurn()) throw new InvalidMoveException("Invalid move");
         //if (!isInCheck(color)) {
-            board.movePiece(move.getStartPosition(), move.getEndPosition());
+            Collection<ChessMove> moves = validMoves(move.getStartPosition());
+            if (moves.contains(move)) {
+                board.movePiece(move.getStartPosition(), move.getEndPosition());
+                if(getTeamTurn() == TeamColor.WHITE) setTeamTurn(TeamColor.BLACK);
+                else setTeamTurn(TeamColor.WHITE);
+            }
+            else throw new InvalidMoveException("Invalid move");
         //}
         //else {
         //    throw new RuntimeException("Not implemented");
@@ -87,12 +94,13 @@ public class ChessGame {
         //throw new RuntimeException("Not implemented");
     }
     private boolean dangerKnight(ChessPosition position) { //think about just doing an iterable piece list...
+        TeamColor color = board.getPiece(position).getTeamColor();
         for (int i = -1; i <= 1; i += 2) {
-            for (int j = -2; j <= 2; j += 2) {
+            for (int j = -2; j <= 2; j += 4) {
                 ChessPosition check1 = new ChessPosition(position.getRow() + i, position.getColumn() + j);
                 ChessPosition check2 = new ChessPosition(position.getRow() + j, position.getColumn() + i);
-                if (validPiece(check1) && board.getPiece(check1).getPieceType() == ChessPiece.PieceType.KNIGHT) return true;
-                if (validPiece(check2) && board.getPiece(check2).getPieceType() == ChessPiece.PieceType.KNIGHT) return true;
+                if (validPiece(check1) && board.getPiece(check1).getPieceType() == ChessPiece.PieceType.KNIGHT && board.getPiece(check1).getTeamColor() != color) return true;
+                if (validPiece(check2) && board.getPiece(check2).getPieceType() == ChessPiece.PieceType.KNIGHT && board.getPiece(check2).getTeamColor() != color) return true;
             }
         }
         return false;
