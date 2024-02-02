@@ -64,15 +64,28 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         TeamColor color = board.getPiece(move.getStartPosition()).getTeamColor();
         if (color != getTeamTurn()) throw new InvalidMoveException("Invalid move");
-        //if (!isInCheck(color)) {
-            Collection<ChessMove> moves = validMoves(move.getStartPosition());
+        Collection<ChessMove> moves = validMoves(move.getStartPosition());
+
+        if (!isInCheck(color)) {
             if (moves.contains(move)) {
-                board.movePiece(move.getStartPosition(), move.getEndPosition());
+                board.movePiece(move);
                 if(getTeamTurn() == TeamColor.WHITE) setTeamTurn(TeamColor.BLACK);
                 else setTeamTurn(TeamColor.WHITE);
             }
             else throw new InvalidMoveException("Invalid move");
-        //}
+        }
+        else {
+            ChessBoard tempBoard = new ChessBoard(board);
+            if (moves.contains(move)) {
+                board.movePiece(move);
+                if (isInCheck(color)) {
+                    board = tempBoard;
+                    throw new InvalidMoveException("Invalid move");
+                }
+                if(getTeamTurn() == TeamColor.WHITE) setTeamTurn(TeamColor.BLACK);
+                else setTeamTurn(TeamColor.WHITE);
+            }
+        }
         //else {
         //    throw new RuntimeException("Not implemented");
         //}
@@ -86,14 +99,16 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) { //Check diags, horizontal and veritcal, and knight pos relative to king?
         ChessPosition kingLoc = board.getKing(teamColor);
+        if (kingLoc == null) return false;
         boolean danger = false;
         if (dangerKnight(kingLoc)) danger = true;
+        if (dangerRook(kingLoc)) danger = true; //STILL NEED TO IMPLEMENT BISHOP AND PAWN
         return danger;
 
 
         //throw new RuntimeException("Not implemented");
     }
-    private boolean dangerKnight(ChessPosition position) { //think about just doing an iterable piece list...
+    private boolean dangerKnight(ChessPosition position) {
         TeamColor color = board.getPiece(position).getTeamColor();
         for (int i = -1; i <= 1; i += 2) {
             for (int j = -2; j <= 2; j += 4) {
@@ -102,6 +117,20 @@ public class ChessGame {
                 if (validPiece(check1) && board.getPiece(check1).getPieceType() == ChessPiece.PieceType.KNIGHT && board.getPiece(check1).getTeamColor() != color) return true;
                 if (validPiece(check2) && board.getPiece(check2).getPieceType() == ChessPiece.PieceType.KNIGHT && board.getPiece(check2).getTeamColor() != color) return true;
             }
+        }
+        return false;
+    }
+    private boolean dangerRook(ChessPosition position) {
+        TeamColor color = board.getPiece(position).getTeamColor();
+        for (int i = -7; i < 7; i += 1) {
+            ChessPosition checkRow = new ChessPosition(position.getRow() + i,position.getColumn());
+            ChessPosition checkCol = new ChessPosition(position.getRow(),position.getColumn() + i);
+            if (validPiece(checkRow) && (board.getPiece(checkRow).getPieceType() == ChessPiece.PieceType.ROOK ||
+                    board.getPiece(checkRow).getPieceType() == ChessPiece.PieceType.QUEEN) &&
+                    board.getPiece(checkRow).getTeamColor() != color) return true;
+            if (validPiece(checkCol) && (board.getPiece(checkCol).getPieceType() == ChessPiece.PieceType.ROOK ||
+                    board.getPiece(checkCol).getPieceType() == ChessPiece.PieceType.QUEEN) &&
+                    board.getPiece(checkCol).getTeamColor() != color) return true;
         }
         return false;
     }

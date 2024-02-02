@@ -11,8 +11,8 @@ import java.util.Arrays;
 public class ChessBoard {
 
     ChessPiece[][] board = new ChessPiece[8][8];
-    ChessPiece[] whitePieces = new ChessPiece[12]; //actually a list would probably be better...
-    ChessPiece[] blackPieces = new ChessPiece[12];
+    //ChessPiece[] whitePieces = new ChessPiece[12]; //actually a list would probably be better...
+    //ChessPiece[] blackPieces = new ChessPiece[12];
     //ChessPosition whiteKing = new ChessPosition(0, 4);
     //ChessPosition blackKing = new ChessPosition(7, 4);
 
@@ -31,6 +31,11 @@ public class ChessBoard {
 
     public ChessBoard() {
     }
+    public ChessBoard(ChessBoard copyFrom) {
+        for (int i = 0; i < 8; ++i) {
+            System.arraycopy(copyFrom.board[i], 0, board[i], 0, 8);
+        }
+    }
 
     /**
      * Adds a chess piece to the chessboard
@@ -42,8 +47,14 @@ public class ChessBoard {
         board[position.getRow() - 1][position.getColumn() - 1] = piece;
     }
 
-    public void movePiece(ChessPosition start, ChessPosition end) {
-        board[end.getRow() - 1][end.getColumn() - 1] = getPiece(start);
+    public void movePiece(ChessMove move) {
+        ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
+        ChessPiece.PieceType promotion = move.getPromotionPiece();
+        ChessGame.TeamColor color = getPiece(start).getTeamColor();
+        ChessPiece.PieceType type = getPiece(start).getPieceType();
+        if (promotion == null) promotion = type;
+        board[end.getRow() - 1][end.getColumn() - 1] = new ChessPiece(color, promotion);//getPiece(start);
         board[start.getRow() - 1][start.getColumn() - 1] = null;
         ChessPiece temp = board[end.getRow() - 1][end.getColumn() - 1];
     }
@@ -93,7 +104,7 @@ public class ChessBoard {
         for (int i = 0; i < 7; ++i) {
             for (int j = 0; j < 7; ++j) {
                 if(board[i][j] != null && board[i][j].getPieceType() == ChessPiece.PieceType.KING && board[i][j].getTeamColor() == color) {
-                    return new ChessPosition(i,j);
+                    return new ChessPosition(i + 1,j + 1);
                 }
             }
         }
@@ -107,7 +118,7 @@ public class ChessBoard {
             for (int j = 0; j < 8; ++j) {
                 boardStr.append(" ");
                 if (board[i][j] == null) {
-                    boardStr.append("  ");
+                    boardStr.append("..");
                 }
                 else {
                     boardStr.append(board[i][j].toString());
