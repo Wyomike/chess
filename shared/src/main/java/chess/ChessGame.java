@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -22,7 +24,6 @@ public class ChessGame {
      */
     public TeamColor getTeamTurn() {
         return turn;
-        //throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -52,7 +53,16 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = new ChessPiece(board.getPiece(startPosition));
         return piece.pieceMoves(board, startPosition);
-        //throw new RuntimeException("Not implemented");
+    }
+    private ArrayList<ChessMove> validTeamMoves(TeamColor color) {
+        ArrayList<ChessMove> teamMoves = new ArrayList<>();
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                ChessPosition check = new ChessPosition(i,j);
+                if (validPiece(check) && board.getPiece(check).getTeamColor() == color) teamMoves.addAll(validMoves(check));
+            }
+        }
+        return teamMoves;
     }
 
     /**
@@ -86,9 +96,18 @@ public class ChessGame {
                 else setTeamTurn(TeamColor.WHITE);
             }
         }
-        //else {
-        //    throw new RuntimeException("Not implemented");
-        //}
+    }
+    private boolean isValidMove(ChessMove move, TeamColor color) {
+        ChessBoard tempBoard = new ChessBoard(board);
+        board.movePiece(move);
+        if (isInCheck(color)) {
+            board = tempBoard;
+            return false;
+        }
+        else {
+            board = tempBoard;
+            return true;
+        }
     }
 
     /**
@@ -103,10 +122,10 @@ public class ChessGame {
         boolean danger = false;
         if (dangerKnight(kingLoc)) danger = true;
         if (dangerRook(kingLoc)) danger = true; //STILL NEED TO IMPLEMENT BISHOP AND PAWN
+        if (dangerBishop(kingLoc)) danger = true;
+        if (dangerPawn(kingLoc)) danger = true;
+        if (dangerKing(kingLoc)) danger = true;
         return danger;
-
-
-        //throw new RuntimeException("Not implemented");
     }
     private boolean dangerKnight(ChessPosition position) {
         TeamColor color = board.getPiece(position).getTeamColor();
@@ -134,6 +153,76 @@ public class ChessGame {
         }
         return false;
     }
+    private boolean dangerBishop(ChessPosition position) {//TODO rename vars here
+        boolean obstructs = false;
+        TeamColor color = board.getPiece(position).getTeamColor();
+        for (int i = 1; i < 7; i += 1) {
+            ChessPosition check = new ChessPosition(position.getRow() + i,position.getColumn() - i);
+            if (validPiece(check) && (board.getPiece(check).getPieceType() == ChessPiece.PieceType.BISHOP ||
+                    board.getPiece(check).getPieceType() == ChessPiece.PieceType.QUEEN) &&
+                    board.getPiece(check).getTeamColor() != color && !obstructs) return true;
+            if (validPiece(check)) obstructs = true;
+        }
+        obstructs = false;
+        for (int i = 1; i < 7; ++i) {
+            ChessPosition check = new ChessPosition(position.getRow() + i,position.getColumn() + i);
+            if (validPiece(check) && (board.getPiece(check).getPieceType() == ChessPiece.PieceType.BISHOP ||
+                    board.getPiece(check).getPieceType() == ChessPiece.PieceType.QUEEN) &&
+                    board.getPiece(check).getTeamColor() != color && !obstructs) return true;
+            if (validPiece(check)) obstructs = true;
+        }
+        obstructs = false;
+        for (int i = 1; i < 7; ++i) {
+            ChessPosition check = new ChessPosition(position.getRow() - i,position.getColumn() - i);
+            if (validPiece(check) && (board.getPiece(check).getPieceType() == ChessPiece.PieceType.BISHOP ||
+                    board.getPiece(check).getPieceType() == ChessPiece.PieceType.QUEEN) &&
+                    board.getPiece(check).getTeamColor() != color && !obstructs) return true;
+            if (validPiece(check)) obstructs = true;
+        }
+        obstructs = false;
+        for (int i = 1; i < 7; ++i) {
+            ChessPosition check = new ChessPosition(position.getRow() - i,position.getColumn() + i);
+            if (validPiece(check) && (board.getPiece(check).getPieceType() == ChessPiece.PieceType.BISHOP ||
+                    board.getPiece(check).getPieceType() == ChessPiece.PieceType.QUEEN) &&
+                    board.getPiece(check).getTeamColor() != color && !obstructs) return true;
+            if (validPiece(check)) obstructs = true;
+        }
+        return false;
+    }
+    public boolean dangerPawn(ChessPosition position) {
+        TeamColor color = board.getPiece(position).getTeamColor();
+        int direction = 0;
+        if (color == TeamColor.WHITE) direction = 1;
+        else direction = -1;
+        ChessPosition checkRight = new ChessPosition(position.getRow() + direction,position.getColumn() + 1);
+        ChessPosition checkLeft = new ChessPosition(position.getRow() + direction,position.getColumn() - 1);
+        if (validPiece(checkRight) && board.getPiece(checkRight).getPieceType() == ChessPiece.PieceType.PAWN &&
+                board.getPiece(checkRight).getTeamColor() != color) return true;
+        if (validPiece(checkLeft) && board.getPiece(checkLeft).getPieceType() == ChessPiece.PieceType.PAWN &&
+                board.getPiece(checkLeft).getTeamColor() != color) return true;
+
+        return false;
+    }
+    public boolean dangerKing(ChessPosition position) {
+        TeamColor color = board.getPiece(position).getTeamColor();
+        for (int i = -1; i <= 1; ++i) {
+            ChessPosition checkUp = new ChessPosition(position.getRow() + 1,position.getColumn() + i);
+            ChessPosition checkDown = new ChessPosition(position.getRow() - 1,position.getColumn() - i);
+            if (validPiece(checkUp) && board.getPiece(checkUp).getPieceType() == ChessPiece.PieceType.KING &&
+                    board.getPiece(checkUp).getTeamColor() != color) return true;
+            if (validPiece(checkDown) && board.getPiece(checkDown).getPieceType() == ChessPiece.PieceType.KING &&
+                    board.getPiece(checkDown).getTeamColor() != color) return true;
+        }
+        ChessPosition checkRight = new ChessPosition(position.getRow(),position.getColumn() + 1);
+        ChessPosition checkLeft = new ChessPosition(position.getRow(),position.getColumn() - 1);
+        if (validPiece(checkRight) && board.getPiece(checkRight).getPieceType() == ChessPiece.PieceType.KING &&
+                board.getPiece(checkRight).getTeamColor() != color) return true;
+        if (validPiece(checkLeft) && board.getPiece(checkLeft).getPieceType() == ChessPiece.PieceType.KING &&
+                board.getPiece(checkLeft).getTeamColor() != color) return true;
+
+        return false;
+    }
+
 
     /**
      * Determines if the given team is in checkmate
@@ -142,7 +231,16 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) { //Check check of all possible next turn boards?
-        throw new RuntimeException("Not implemented");
+        ArrayList<ChessMove> teamMoves = validTeamMoves(teamColor);
+        boolean noValidMoves = true;
+        Iterator<ChessMove> listIterator = teamMoves.iterator();
+        while (listIterator.hasNext()) {
+            if (isValidMove(listIterator.next(), teamColor)) {
+                noValidMoves = false;
+                return noValidMoves;
+            }
+        }
+        return noValidMoves;
     }
 
     /**
@@ -153,7 +251,9 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");//honestly sei la
+        boolean wut = isInCheckmate(teamColor); //TODO REMOVE THIS
+        if (isInCheckmate(teamColor) && getTeamTurn() == teamColor) return true;
+        else return false;
     }
 
     /**

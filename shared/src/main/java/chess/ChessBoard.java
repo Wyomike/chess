@@ -101,8 +101,8 @@ public class ChessBoard {
     }
 
     public ChessPosition getKing(ChessGame.TeamColor color) {
-        for (int i = 0; i < 7; ++i) {
-            for (int j = 0; j < 7; ++j) {
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 8; ++j) {
                 if(board[i][j] != null && board[i][j].getPieceType() == ChessPiece.PieceType.KING && board[i][j].getTeamColor() == color) {
                     return new ChessPosition(i + 1,j + 1);
                 }
