@@ -52,7 +52,15 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = new ChessPiece(board.getPiece(startPosition));
-        return piece.pieceMoves(board, startPosition);
+        Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
+        Collection<ChessMove> validMoveList = new ArrayList<ChessMove>();
+        Iterator<ChessMove> moveIter = moves.iterator();
+        while (moveIter.hasNext()) {
+            ChessMove move = moveIter.next();
+            if (isValidMove(move, board.getPiece(startPosition).getTeamColor())) validMoveList.add(move);
+        }
+        return validMoveList;
+        //return piece.pieceMoves(board, startPosition);
     }
     private ArrayList<ChessMove> validTeamMoves(TeamColor color) {
         ArrayList<ChessMove> teamMoves = new ArrayList<>();
@@ -95,6 +103,7 @@ public class ChessGame {
                 if(getTeamTurn() == TeamColor.WHITE) setTeamTurn(TeamColor.BLACK);
                 else setTeamTurn(TeamColor.WHITE);
             }
+            else throw new InvalidMoveException("Not in vaild moveset");
         }
     }
     private boolean isValidMove(ChessMove move, TeamColor color) {
@@ -141,7 +150,42 @@ public class ChessGame {
     }
     private boolean dangerRook(ChessPosition position) {
         TeamColor color = board.getPiece(position).getTeamColor();
-        for (int i = -7; i < 7; i += 1) {
+
+        boolean obstructs = false;
+        for (int i = 1; i < 7; i += 1) {
+            ChessPosition check = new ChessPosition(position.getRow() + i,position.getColumn());
+            if (validPiece(check) && (board.getPiece(check).getPieceType() == ChessPiece.PieceType.ROOK ||
+                    board.getPiece(check).getPieceType() == ChessPiece.PieceType.QUEEN) &&
+                    board.getPiece(check).getTeamColor() != color && !obstructs) return true;
+            if (validPiece(check)) obstructs = true;
+        }
+        obstructs = false;
+        for (int i = 1; i < 7; ++i) {
+            ChessPosition check = new ChessPosition(position.getRow() - i,position.getColumn());
+            if (validPiece(check) && (board.getPiece(check).getPieceType() == ChessPiece.PieceType.ROOK ||
+                    board.getPiece(check).getPieceType() == ChessPiece.PieceType.QUEEN) &&
+                    board.getPiece(check).getTeamColor() != color && !obstructs) return true;
+            if (validPiece(check)) obstructs = true;
+        }
+        obstructs = false;
+        for (int i = 1; i < 7; ++i) {
+            ChessPosition check = new ChessPosition(position.getRow(),position.getColumn() + i);
+            if (validPiece(check) && (board.getPiece(check).getPieceType() == ChessPiece.PieceType.ROOK ||
+                    board.getPiece(check).getPieceType() == ChessPiece.PieceType.QUEEN) &&
+                    board.getPiece(check).getTeamColor() != color && !obstructs) return true;
+            if (validPiece(check)) obstructs = true;
+        }
+        obstructs = false;
+        for (int i = 1; i < 7; ++i) {
+            ChessPosition check = new ChessPosition(position.getRow(),position.getColumn() - i);
+            if (validPiece(check) && (board.getPiece(check).getPieceType() == ChessPiece.PieceType.ROOK ||
+                    board.getPiece(check).getPieceType() == ChessPiece.PieceType.QUEEN) &&
+                    board.getPiece(check).getTeamColor() != color && !obstructs) return true;
+            if (validPiece(check)) obstructs = true;
+        }
+        return false;
+
+        /*for (int i = -7; i < 7; i += 1) {
             ChessPosition checkRow = new ChessPosition(position.getRow() + i,position.getColumn());
             ChessPosition checkCol = new ChessPosition(position.getRow(),position.getColumn() + i);
             if (validPiece(checkRow) && (board.getPiece(checkRow).getPieceType() == ChessPiece.PieceType.ROOK ||
@@ -151,7 +195,7 @@ public class ChessGame {
                     board.getPiece(checkCol).getPieceType() == ChessPiece.PieceType.QUEEN) &&
                     board.getPiece(checkCol).getTeamColor() != color) return true;
         }
-        return false;
+        return false;*/
     }
     private boolean dangerBishop(ChessPosition position) {//TODO rename vars here
         boolean obstructs = false;
