@@ -18,13 +18,4 @@ public class ClearHandler {
         res.status();
         return "";
     }
-
-    /*
-    private Object deleteAllPets(Request req, Response res) throws ResponseException {
-        service.deleteAllPets();
-        res.status(204);
-        return "";
-    }
-
-     */
 }
