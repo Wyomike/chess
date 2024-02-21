@@ -5,6 +5,7 @@ import dataAccess.GameDAO;
 import dataAccess.UserDAO;
 import model.GameData;
 
+import java.util.*;
 import java.util.Objects;
 
 public class GameService {
@@ -19,15 +20,18 @@ public class GameService {
         //this.userDao = userDao;
     }
 
-    public void listGames() { //TODO figure out how return list.
-        gameDao.listGame();
+    public Collection<GameData> listGames() { //TODO figure out how return list.
+        return gameDao.listGame();
     }
-    public void createGame(GameData game) {
-        gameDao.addGame(game.gameName());
+    public GameData createGame(GameData game) {
+        return gameDao.addGame(game.gameName());
     }
-    public void joinGame(String color, String id) {
+    public void joinGame(String color, int id) {
         if(color.equals("White")) {
             gameDao.joinGame(id, color, "null");
+        }
+        else {
+            gameDao.joinGame(id, "null", color);
         }
     }
 }

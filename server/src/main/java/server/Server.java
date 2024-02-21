@@ -8,10 +8,8 @@ import spark.*;
 public class Server {
 
     private final ClearHandler clearHandler = new ClearHandler();
-    private final RegisterHandler registerHandler = new RegisterHandler();
-    private final LoginHandler loginHandler = new LoginHandler();
-    private final LogoutHandler logoutHandler = new LogoutHandler();
     private final GameHandler gameHandler = new GameHandler();
+    private final UserHandler userHandler = new UserHandler();
 
     public Server() {
     }
@@ -38,16 +36,16 @@ public class Server {
         return clearHandler.clearServer(request,response);
     }
     private Object register(Request request, Response response) {
-        return registerHandler.register(request,response);
+        return userHandler.register(request,response);
     }
     private Object login(Request request, Response response) {
-        return loginHandler.login(request,response);
+        return userHandler.login(request,response);
     }
     private Object logout(Request request, Response response) {
-        return logoutHandler.logout(request,response);
+        return userHandler.logout(request,response);
     }
     private Object listGames(Request request, Response response) {
-        return loginHandler.login(request,response);
+        return gameHandler.listGames(request,response);
     }
     private Object createGame(Request request, Response response) {
         return gameHandler.createGame(request,response);

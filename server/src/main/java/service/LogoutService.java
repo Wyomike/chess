@@ -17,7 +17,6 @@ public class LogoutService {
     }
 
     public void logout(AuthData authData) {//TODO change return type, discover what should return.
-        //userDao.deleteUserData(authData.username());
         authDao.deleteAuthData(authData.authToken()); //should return authToken.
     }
 }

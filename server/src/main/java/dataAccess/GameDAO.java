@@ -11,9 +11,9 @@ public interface GameDAO {
 
     GameData getGame(Integer id);
 
-    void deleteGameData(String id);
+    void deleteGameData(int id);
 
     void clear();
 
-    void joinGame(String id, String white, String black);
+    void joinGame(int id, String white, String black);
 }

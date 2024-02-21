@@ -32,13 +32,12 @@ public class MemoryGameDAO implements GameDAO { //How will we identify games? wi
     public GameData getGame(Integer id) {
         return gameData.get(id);
     }
-    public void joinGame(String id, String white, String black) {
-        updateGame(getGame(Integer.parseInt(id)), white, black);
+    public void joinGame(int id, String white, String black) {
+        updateGame(getGame(id), white, black);
         deleteGameData(id);
-
     }
     @Override
-    public void deleteGameData(String id) {
+    public void deleteGameData(int id) {
         gameData.remove(id);
     }
 
