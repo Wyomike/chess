@@ -1,15 +1,17 @@
 package server;
 
-import dataAccess.AuthDAO;
-import dataAccess.GameDAO;
-import dataAccess.UserDAO;
+import dataAccess.*;
 import spark.*;
 
 public class Server {
 
-    private final ClearHandler clearHandler = new ClearHandler();
-    private final GameHandler gameHandler = new GameHandler();
-    private final UserHandler userHandler = new UserHandler();
+    private AuthDAO authDAO = new MemoryAuthDAO();
+    private UserDAO userDAO = new MemoryUserDAO();
+    private GameDAO gameDAO = new MemoryGameDAO();
+
+    private final ClearHandler clearHandler = new ClearHandler(authDAO, userDAO, gameDAO);
+    private final GameHandler gameHandler = new GameHandler(authDAO, userDAO, gameDAO);
+    private final UserHandler userHandler = new UserHandler(authDAO, userDAO);
 
     public Server() {
     }
@@ -33,24 +35,31 @@ public class Server {
     }
 
     private Object clear(Request request, Response response) {
+        System.out.println("CLEAR");
         return clearHandler.clearServer(request,response);
     }
     private Object register(Request request, Response response) {
+        System.out.println("REGISTER");
         return userHandler.register(request,response);
     }
     private Object login(Request request, Response response) {
+        System.out.println("LOGIN");
         return userHandler.login(request,response);
     }
     private Object logout(Request request, Response response) {
+        System.out.println("LOGOUT");
         return userHandler.logout(request,response);
     }
     private Object listGames(Request request, Response response) {
+        System.out.println("LISTGAME");
         return gameHandler.listGames(request,response);
     }
     private Object createGame(Request request, Response response) {
+        System.out.println("CREATEGAME");
         return gameHandler.createGame(request,response);
     }
     private Object joinGame(Request request, Response response) {
+        System.out.println("JOINGAME");
         return gameHandler.joinGame(request,response);
     }
 

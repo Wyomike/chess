@@ -1,5 +1,6 @@
 package server;
 
+import com.google.gson.Gson;
 import dataAccess.AuthDAO;
 import dataAccess.GameDAO;
 import dataAccess.UserDAO;
@@ -10,12 +11,13 @@ public class ClearHandler {
 
     private ClearService service;
 
-    public ClearHandler() {
+    public ClearHandler(AuthDAO authDAO, UserDAO userDAO, GameDAO gameDAO) {
+        service = new ClearService(authDAO, gameDAO, userDAO);
     }
 
     public Object clearServer(Request req, Response res) {
         service.clear();
         res.status(200);
-        return "";
+        return new Gson().toJson("");
     }
 }

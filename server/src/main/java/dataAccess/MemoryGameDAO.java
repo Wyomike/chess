@@ -15,14 +15,19 @@ public class MemoryGameDAO implements GameDAO { //How will we identify games? wi
 
     public GameData addGame(String gameName) {
         int gameID = ++numGames;
-        GameData data = new GameData(gameID, "None", "None", gameName, new ChessGame());
+        GameData data = new GameData(gameID, "null", "null", gameName, new ChessGame());
         gameData.put(gameID, data);
         return data;
     }
-    private void updateGame(GameData game, String white, String  black) {
+    private GameData updateGame(GameData game, String white, String  black) {
         GameData data = new GameData(game.gameID(), white, black, game.gameName(), game.game());
-        gameData.put(game.gameID(), data);
-        //return data;
+        if (white.equals("null")) {
+            return data = new GameData(game.gameID(), game.whiteUsername(), black, game.gameName(), game.game());
+        }
+        else if (black.equals("null")) {
+            return data = new GameData(game.gameID(), white, game.blackUsername(), game.gameName(), game.game());
+        }
+        return data;
     }
 
     public Collection<GameData> listGame() {
@@ -33,8 +38,9 @@ public class MemoryGameDAO implements GameDAO { //How will we identify games? wi
         return gameData.get(id);
     }
     public void joinGame(int id, String white, String black) {
-        updateGame(getGame(id), white, black);
+        GameData tempGame = updateGame(getGame(id), white, black);
         deleteGameData(id);
+        gameData.put(tempGame.gameID(), tempGame);
     }
     @Override
     public void deleteGameData(int id) {

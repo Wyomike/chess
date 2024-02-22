@@ -1,30 +1,34 @@
 package service;
 
-import dataAccess.AuthDAO;
-import dataAccess.UserDAO;
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryUserDAO;
+import dataAccess.*;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 
 public class UserService {
     //make call all DAOs and delete their data/delete them?
-    private final AuthDAO authDao = new MemoryAuthDAO();
-    private final UserDAO userDao = new MemoryUserDAO();
+    private final AuthDAO authDao;
+    private final UserDAO userDao;
 
-    public UserService() {
+    public UserService(AuthDAO authDAO, UserDAO userDAO) {
+        authDao = authDAO;
+        userDao = userDAO;
     }
 
     public AuthData register(UserData userData) {
         userDao.addUser(userData.username(), userData.password(), userData.email());
         return authDao.addAuth(userData.username());
     }
-    public AuthData login(AuthData authData) {
-        userDao.getUser(authData.username());
+    public AuthData login(AuthData authData) throws DataAccessException {
+        if (userDao.getUser(authData.username()) == null) {
+            throw new DataAccessException("Error: unauthorized");
+        }
         return authDao.addAuth(authData.username()); //should return authToken.
     }
-    public void logout(String authToken) {//TODO change return type, discover what should return.
-        authDao.deleteAuthData(authToken); //should return authToken.
+    public void logout(String authToken) throws DataAccessException {//TODO change return type, discover what should return.
+        if (authDao.getAuth(authToken) == null) {
+            throw new DataAccessException("Error: unauthorized");
+        }
+        authDao.deleteAuthData(authToken);
     }
 }
