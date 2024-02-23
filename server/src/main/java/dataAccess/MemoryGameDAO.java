@@ -10,11 +10,11 @@ import java.util.UUID;
 
 public class MemoryGameDAO implements GameDAO { //How will we identify games? will need to determine this.
 
-    int numGames = 0;
+    int numGames = 1;
     final private HashMap<Integer, GameData> gameData = new HashMap<>();
 
     public GameData addGame(String gameName) {
-        int gameID = ++numGames;
+        int gameID = numGames++;
         GameData data = new GameData(gameID, "null", "null", gameName, new ChessGame());
         gameData.put(gameID, data);
         return data;

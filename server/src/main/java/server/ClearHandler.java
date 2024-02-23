@@ -18,6 +18,6 @@ public class ClearHandler {
     public Object clearServer(Request req, Response res) {
         service.clear();
         res.status(200);
-        return new Gson().toJson("");
+        return new Gson().toJson(null);
     }
 }

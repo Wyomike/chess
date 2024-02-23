@@ -3,6 +3,7 @@ package service;
 import dataAccess.*;
 import model.AuthData;
 import model.GameData;
+import model.LoginRequest;
 import model.UserData;
 
 public class UserService {
@@ -15,15 +16,15 @@ public class UserService {
         userDao = userDAO;
     }
 
-    public AuthData register(UserData userData) {
+    public AuthData register(UserData userData) throws DataAccessException {
+        if (userDao.getUser(userData.username()) != null) throw new DataAccessException("Error: already taken");
         userDao.addUser(userData.username(), userData.password(), userData.email());
         return authDao.addAuth(userData.username());
     }
-    public AuthData login(AuthData authData) throws DataAccessException {
-        if (userDao.getUser(authData.username()) == null) {
-            throw new DataAccessException("Error: unauthorized");
-        }
-        return authDao.addAuth(authData.username()); //should return authToken.
+    public AuthData login(LoginRequest loginRequest) throws DataAccessException {
+        if (userDao.getUser(loginRequest.username()) == null) throw new DataAccessException("Error: unauthorized");
+        if (!(userDao.getUser(loginRequest.username()).password().equals(loginRequest.password()))) throw new DataAccessException("Error: unauthorized");
+        return authDao.addAuth(loginRequest.username()); //should return authToken.
     }
     public void logout(String authToken) throws DataAccessException {//TODO change return type, discover what should return.
         if (authDao.getAuth(authToken) == null) {

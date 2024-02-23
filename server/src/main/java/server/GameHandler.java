@@ -5,10 +5,7 @@ import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
 import dataAccess.UserDAO;
-import model.AuthData;
-import model.GameData;
-import model.JoinRequest;
-import model.UserData;
+import model.*;
 import service.ClearService;
 import service.GameService;
 import service.RegisterService;
@@ -44,9 +41,10 @@ public class GameHandler {
             GameData game = new Gson().fromJson(req.body(), GameData.class);
             GameData resultGame = service.createGame(game, authToken);
             res.status(200);
-            return new Gson().toJson(Map.of("gameID:", resultGame.gameID()));
+            return new Gson().toJson(new GameID(resultGame.gameID()));
         }
         catch (DataAccessException accessException) {
+            res.status(401);
             return new Gson().toJson(Map.of("message", accessException.getMessage()));
         }
     }
@@ -59,7 +57,7 @@ public class GameHandler {
             service.joinGame(request.playerColor(), request.gameID(), authToken);
             res.status(200);
             //String authToken = new Gson().fromJson(req.body(), String.class);
-            return new Gson().toJson("");
+            return new Gson().toJson(null);
         }
         catch (DataAccessException accessException) {
             return new Gson().toJson(Map.of("message", accessException.getMessage()));
