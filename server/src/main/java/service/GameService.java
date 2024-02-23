@@ -1,14 +1,12 @@
 package service;
 
 import com.google.gson.Gson;
-import dataAccess.AuthDAO;
-import dataAccess.DataAccessException;
-import dataAccess.GameDAO;
-import dataAccess.UserDAO;
+import dataAccess.*;
 import model.AuthData;
 import model.GameData;
 
 import javax.xml.crypto.Data;
+import java.awt.*;
 import java.util.*;
 import java.util.Objects;
 
@@ -34,11 +32,15 @@ public class GameService {
     }
     public void joinGame(String color, int id, String authToken) throws DataAccessException {
         if (authDao.getAuth(authToken) == null) throw new DataAccessException("Error: unauthorized");
-        if (color.equals("WHITE")) {
-            gameDao.joinGame(id, authDao.getAuth(authToken).username(), "null");
+        if (gameDao.getGame(id) == null) throw new BadRequestException("Error: bad request");
+        if (color != null && color.equals("WHITE")) {
+            gameDao.joinGame(id, authDao.getAuth(authToken).username(), null);
         }
-        else if (color.equals("BLACK")) {
-            gameDao.joinGame(id, "null", authDao.getAuth(authToken).username());
+        else if (color != null && color.equals("BLACK")) {
+            gameDao.joinGame(id, null, authDao.getAuth(authToken).username());
+        }
+        else if (color == null) {
+            gameDao.joinGame(id, null, null);
         }
     }
 }

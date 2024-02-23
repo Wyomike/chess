@@ -4,6 +4,7 @@ import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
 
+import javax.swing.plaf.ColorUIResource;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
@@ -15,17 +16,19 @@ public class MemoryGameDAO implements GameDAO { //How will we identify games? wi
 
     public GameData addGame(String gameName) {
         int gameID = numGames++;
-        GameData data = new GameData(gameID, "null", "null", gameName, new ChessGame());
+        GameData data = new GameData(gameID, null, null, gameName, new ChessGame());
         gameData.put(gameID, data);
         return data;
     }
     private GameData updateGame(GameData game, String white, String  black) {
         GameData data = new GameData(game.gameID(), white, black, game.gameName(), game.game());
-        if (white.equals("null")) {
-            return data = new GameData(game.gameID(), game.whiteUsername(), black, game.gameName(), game.game());
+        if (white == null) {
+            data = new GameData(game.gameID(), game.whiteUsername(), black, game.gameName(), game.game());
+            return data;
         }
-        else if (black.equals("null")) {
-            return data = new GameData(game.gameID(), white, game.blackUsername(), game.gameName(), game.game());
+        else if (black == null) {
+            data = new GameData(game.gameID(), white, game.blackUsername(), game.gameName(), game.game());
+            return data;
         }
         return data;
     }
@@ -37,7 +40,9 @@ public class MemoryGameDAO implements GameDAO { //How will we identify games? wi
     public GameData getGame(Integer id) {
         return gameData.get(id);
     }
-    public void joinGame(int id, String white, String black) {
+    public void joinGame(int id, String white, String black) throws DataAccessException {
+        if (getGame(id).whiteUsername() != null && white != null) throw new ColorException("Error: already taken");
+        if (getGame(id).blackUsername() != null && black != null) throw new ColorException("Error: already taken");
         GameData tempGame = updateGame(getGame(id), white, black);
         deleteGameData(id);
         gameData.put(tempGame.gameID(), tempGame);

@@ -1,10 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
-import dataAccess.AuthDAO;
-import dataAccess.DataAccessException;
-import dataAccess.GameDAO;
-import dataAccess.UserDAO;
+import dataAccess.*;
 import model.*;
 import service.ClearService;
 import service.GameService;
@@ -59,7 +56,16 @@ public class GameHandler {
             //String authToken = new Gson().fromJson(req.body(), String.class);
             return new Gson().toJson(null);
         }
+        catch (BadRequestException requestException) {
+            res.status(400);
+            return new Gson().toJson(Map.of("message", requestException.getMessage()));
+        }
+        catch (ColorException colorException) {
+            res.status(403);
+            return new Gson().toJson(Map.of("message", colorException.getMessage()));
+        }
         catch (DataAccessException accessException) {
+            res.status(401);
             return new Gson().toJson(Map.of("message", accessException.getMessage()));
         }
     }

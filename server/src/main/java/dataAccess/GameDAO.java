@@ -2,6 +2,7 @@ package dataAccess;
 
 import model.GameData;
 
+import javax.xml.crypto.Data;
 import java.util.Collection;
 
 public interface GameDAO {
@@ -15,5 +16,5 @@ public interface GameDAO {
 
     void clear();
 
-    void joinGame(int id, String white, String black);
+    void joinGame(int id, String white, String black) throws DataAccessException;
 }
