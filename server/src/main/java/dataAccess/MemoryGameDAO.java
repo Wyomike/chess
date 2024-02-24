@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class MemoryGameDAO implements GameDAO { //How will we identify games? will need to determine this.
+public class MemoryGameDAO implements GameDAO {
 
     int numGames = 1;
     final private HashMap<Integer, GameData> gameData = new HashMap<>();

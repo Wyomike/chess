@@ -15,13 +15,13 @@ import java.util.Map;
 
 public class UserHandler {
 
-    private UserService service;
+    private final UserService service;
 
     public UserHandler(AuthDAO authDAO, UserDAO userDAO) {
         service = new UserService(authDAO, userDAO);
     }
 
-    public Object register(Request req, Response res) {//here do json stuff.
+    public Object register(Request req, Response res) {
         try {
             UserData user = new Gson().fromJson(req.body(), UserData.class);
             if (user.username() == null || user.password() == null || user.email() == null) {
@@ -38,7 +38,7 @@ public class UserHandler {
             return new Gson().toJson(Map.of("message", accessException.getMessage()));
         }
     }
-    public Object login(Request req, Response res) {//here do json stuff. this may cause issue with missing info.
+    public Object login(Request req, Response res) {
         LoginRequest loginRequest = new Gson().fromJson(req.body(), LoginRequest.class);
         try {
             AuthData returnAuth = service.login(loginRequest);
@@ -51,11 +51,11 @@ public class UserHandler {
         }
 
     }
-    public Object logout(Request req, Response res) {//here do json stuff. this may cause issue with missing info.
+    public Object logout(Request req, Response res) {
         String authToken = req.headers("authorization");
         try {
             service.logout(authToken);
-            res.status(200); //implement the fail cases.
+            res.status(200);
             return new Gson().toJson(null);
         }
         catch (DataAccessException accessException) {

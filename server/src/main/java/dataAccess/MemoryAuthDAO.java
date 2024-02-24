@@ -8,9 +8,6 @@ import java.util.UUID;
 
 public class MemoryAuthDAO implements AuthDAO {
 
-
-    //private AuthData authData;
-    //private int nextId = 1;
     final private HashMap<String, AuthData> authsData = new HashMap<>();
 
     public AuthData addAuth(String username) {

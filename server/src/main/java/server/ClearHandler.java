@@ -9,7 +9,7 @@ import spark.*;
 
 public class ClearHandler {
 
-    private ClearService service;
+    private final ClearService service;
 
     public ClearHandler(AuthDAO authDAO, UserDAO userDAO, GameDAO gameDAO) {
         service = new ClearService(authDAO, gameDAO, userDAO);

@@ -3,9 +3,7 @@ package server;
 import com.google.gson.Gson;
 import dataAccess.*;
 import model.*;
-import service.ClearService;
 import service.GameService;
-import service.RegisterService;
 import spark.Request;
 import spark.Response;
 
@@ -15,11 +13,11 @@ public class GameHandler {
 
     private GameService service;
 
-    public GameHandler(AuthDAO authDAO, UserDAO userDAO, GameDAO gameDAO) {
-        service = new GameService(authDAO, gameDAO, userDAO);
+    public GameHandler(AuthDAO authDAO, GameDAO gameDAO) {
+        service = new GameService(authDAO, gameDAO);
     }
 
-    public Object listGames(Request req, Response res) {//here do json stuff.
+    public Object listGames(Request req, Response res) {
         String authToken = req.headers("authorization");
         try {
             res.type("application/json");
@@ -32,7 +30,7 @@ public class GameHandler {
             return new Gson().toJson(Map.of("message", accessException.getMessage()));
         }
     }
-    public Object createGame(Request req, Response res) {//probably need a dummy class here to pass on for game construction
+    public Object createGame(Request req, Response res) {
         String authToken = req.headers("authorization");
         try {
             GameData game = new Gson().fromJson(req.body(), GameData.class);
@@ -46,14 +44,12 @@ public class GameHandler {
         }
     }
     public Object joinGame(Request req, Response res) {
-        //Here you're gonna want to make a custom object to get the data, then pass it on from the object
         String authToken = req.headers("authorization");
 
         try {
             JoinRequest request = new Gson().fromJson(req.body(), JoinRequest.class);
             service.joinGame(request.playerColor(), request.gameID(), authToken);
             res.status(200);
-            //String authToken = new Gson().fromJson(req.body(), String.class);
             return new Gson().toJson(null);
         }
         catch (BadRequestException requestException) {

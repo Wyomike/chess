@@ -10,7 +10,7 @@ public class Server {
     private GameDAO gameDAO = new MemoryGameDAO();
 
     private final ClearHandler clearHandler = new ClearHandler(authDAO, userDAO, gameDAO);
-    private final GameHandler gameHandler = new GameHandler(authDAO, userDAO, gameDAO);
+    private final GameHandler gameHandler = new GameHandler(authDAO, gameDAO);
     private final UserHandler userHandler = new UserHandler(authDAO, userDAO);
 
     public Server() {

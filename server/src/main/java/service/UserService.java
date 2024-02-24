@@ -2,12 +2,10 @@ package service;
 
 import dataAccess.*;
 import model.AuthData;
-import model.GameData;
 import model.LoginRequest;
 import model.UserData;
 
 public class UserService {
-    //make call all DAOs and delete their data/delete them?
     private final AuthDAO authDao;
     private final UserDAO userDao;
 
@@ -24,9 +22,9 @@ public class UserService {
     public AuthData login(LoginRequest loginRequest) throws DataAccessException {
         if (userDao.getUser(loginRequest.username()) == null) throw new DataAccessException("Error: unauthorized");
         if (!(userDao.getUser(loginRequest.username()).password().equals(loginRequest.password()))) throw new DataAccessException("Error: unauthorized");
-        return authDao.addAuth(loginRequest.username()); //should return authToken.
+        return authDao.addAuth(loginRequest.username());
     }
-    public void logout(String authToken) throws DataAccessException {//TODO change return type, discover what should return.
+    public void logout(String authToken) throws DataAccessException {
         if (authDao.getAuth(authToken) == null) {
             throw new DataAccessException("Error: unauthorized");
         }

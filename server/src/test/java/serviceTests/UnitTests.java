@@ -18,9 +18,6 @@ import javax.xml.crypto.Data;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UnitTests {
 
-    //private static TestModels.TestUser existingUser;
-    //private static TestModels.TestUser newUser;
-
     private UserData testUser = new UserData("username", "password", "email");
     private UserData newTestUser = new UserData("1", "2", "3");
 
@@ -30,10 +27,21 @@ public class UnitTests {
 
     private static ClearService clearService = new ClearService(authDAO, gameDAO, userDAO);
     private static UserService userService = new UserService(authDAO, userDAO);
-    private static GameService gameService = new GameService(authDAO, gameDAO, userDAO);
+    private static GameService gameService = new GameService(authDAO, gameDAO);
 
     private static Server server;
     private String existingAuth;
+
+    @BeforeEach
+    public void init() {
+        authDAO = new MemoryAuthDAO();
+        userDAO = new MemoryUserDAO();
+        gameDAO = new MemoryGameDAO();
+
+        clearService = new ClearService(authDAO, gameDAO, userDAO);
+        userService = new UserService(authDAO, userDAO);
+        gameService = new GameService(authDAO, gameDAO);
+    }
 
     @Test
     @Order(1)
