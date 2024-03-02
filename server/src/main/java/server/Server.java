@@ -6,7 +6,7 @@ import spark.*;
 public class Server {
 
     private AuthDAO authDAO = new MemoryAuthDAO();
-    private UserDAO userDAO = new MemoryUserDAO();
+    private UserDAO userDAO = new SQLUserDAO();
     private GameDAO gameDAO = new MemoryGameDAO();
 
     private final ClearHandler clearHandler = new ClearHandler(authDAO, userDAO, gameDAO);

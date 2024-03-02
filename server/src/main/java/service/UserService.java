@@ -18,6 +18,7 @@ public class UserService {
         if (userDao.getUser(userData.username()) != null) throw new DataAccessException("Error: already taken");
         userDao.addUser(userData.username(), userData.password(), userData.email());
         return authDao.addAuth(userData.username());
+
     }
     public AuthData login(LoginRequest loginRequest) throws DataAccessException {
         if (userDao.getUser(loginRequest.username()) == null) throw new DataAccessException("Error: unauthorized");
