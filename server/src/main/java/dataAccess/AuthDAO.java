@@ -2,16 +2,17 @@ package dataAccess;
 
 import model.AuthData;
 
+import javax.xml.crypto.Data;
 import java.util.Collection;
 
-public interface AuthDAO { //determine which functions need, for now just copied over from petshop
-    AuthData addAuth(String username);
-    //I just got rid of response exceptions, we'll find out later if we need them. If need, reference petshop.
-    Collection<AuthData> listAuth();
+public interface AuthDAO {
+    AuthData addAuth(String username) throws DataAccessException;
 
-    AuthData getAuth(String id);
+    Collection<AuthData> listAuth() throws DataAccessException;
 
-    void deleteAuthData(String id);
+    AuthData getAuth(String id) throws DataAccessException;
 
-    void clear();
+    void deleteAuthData(String id) throws DataAccessException;
+
+    void clear() throws DataAccessException;
 }
