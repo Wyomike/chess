@@ -6,15 +6,15 @@ import javax.xml.crypto.Data;
 import java.util.Collection;
 
 public interface GameDAO {
-    GameData addGame(String gameName);
+    GameData addGame(String gameName) throws DataAccessException;
     //I just got rid of response exceptions, we'll find out later if we need them. If need, reference petshop.
-    Collection<GameData> listGame();
+    Collection<GameData> listGame() throws DataAccessException;
 
-    GameData getGame(Integer id);
+    GameData getGame(Integer id) throws DataAccessException;
 
-    void deleteGameData(int id);
+    void deleteGameData(int id) throws DataAccessException;
 
-    void clear();
+    void clear() throws DataAccessException;
 
     void joinGame(int id, String white, String black) throws DataAccessException;
 }
