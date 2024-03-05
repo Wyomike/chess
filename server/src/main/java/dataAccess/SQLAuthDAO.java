@@ -71,7 +71,7 @@ public class SQLAuthDAO implements AuthDAO {
     }
 
     public void clear()  throws DataAccessException {
-        String statement = "DELETE FROM authData"; //think about using truncate users
+        String statement = "TRUNCATE authData"; //think about using truncate users
         executeUpdate(statement);
     }
 

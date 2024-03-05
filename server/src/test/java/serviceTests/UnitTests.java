@@ -16,14 +16,14 @@ import spark.utils.Assert;
 import javax.xml.crypto.Data;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class UnitTests {
+public class UnitTests { //MAKE SURE HAVE A GOOD BEFORE ALL WITH CLEARING, verify the login stuff.
 
     private UserData testUser = new UserData("username", "password", "email");
     private UserData newTestUser = new UserData("1", "2", "3");
 
-    private static AuthDAO authDAO = new MemoryAuthDAO();
-    private static UserDAO userDAO = new MemoryUserDAO();
-    private static GameDAO gameDAO = new MemoryGameDAO();
+    private static AuthDAO authDAO = new SQLAuthDAO();
+    private static UserDAO userDAO = new SQLUserDAO();
+    private static GameDAO gameDAO = new SQLGameDAO();
 
     private static ClearService clearService = new ClearService(authDAO, gameDAO, userDAO);
     private static UserService userService = new UserService(authDAO, userDAO);
@@ -41,6 +41,13 @@ public class UnitTests {
         clearService = new ClearService(authDAO, gameDAO, userDAO);
         userService = new UserService(authDAO, userDAO);
         gameService = new GameService(authDAO, gameDAO);
+
+        try {
+            clearService.clear();
+        }
+        catch (DataAccessException accessException) {
+            System.out.println(accessException.getMessage());
+        }
     }
 
     @Test

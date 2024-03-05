@@ -3,6 +3,8 @@ package server;
 import dataAccess.*;
 import spark.*;
 
+import static dataAccess.DatabaseManager.*;
+
 public class Server {
 
     private AuthDAO authDAO = new SQLAuthDAO();
@@ -20,6 +22,15 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        try {
+            DatabaseManager.createDatabase();
+        }
+        catch (DataAccessException accessException) {
+            System.out.println(accessException.getMessage());
+        }
+          // dbm = new DatabaseManager();
+
 
         Spark.delete("/db", this::clear);
         Spark.post("/user", this::register);

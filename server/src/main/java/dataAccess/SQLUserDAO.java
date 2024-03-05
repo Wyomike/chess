@@ -97,7 +97,7 @@ public class SQLUserDAO implements UserDAO {
     }
 
     public void clear()  throws DataAccessException {
-        String statement = "DELETE FROM users"; //think about using truncate users
+        String statement = "TRUNCATE users"; //think about using truncate users
         executeUpdate(statement);
     }
 

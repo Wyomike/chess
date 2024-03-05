@@ -19,8 +19,8 @@ public class SQLGameDAO implements GameDAO {
 
     public GameData addGame (String gameName) throws DataAccessException { //TODO - serialize games?
         String chessGame = new Gson().toJson(new ChessGame());
-        String statement = "INSERT INTO gameData (NULL, NULL, gameName, chessGame) VALUES (?, ?)";
-        int id = executeUpdate(statement, gameName, chessGame);
+        String statement = "INSERT INTO gameData (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
+        int id = executeUpdate(statement, null, null, gameName, chessGame);
         return getGame(id);
     }
     //I just got rid of response exceptions, we'll find out later if we need them. If need, reference petshop.
@@ -66,7 +66,9 @@ public class SQLGameDAO implements GameDAO {
         GameData game = getGame(id);
         if (game.whiteUsername() != null && white != null) throw new ColorException("Error: already taken");
         if (game.blackUsername() != null && black != null) throw new ColorException("Error: already taken");
-        String statement = "UPDATE gameData set whiteUsername = ?, blackUsername = ? where id = ?; VALUES (?, ?, ?)";
+        if (white == null) white = game.whiteUsername();
+        if (black == null) black = game.blackUsername();
+        String statement = "UPDATE gameData set whiteUsername = ?, blackUsername = ? where id = ?";
         executeUpdate(statement, white, black, id);
     }
 
@@ -76,7 +78,7 @@ public class SQLGameDAO implements GameDAO {
     }
 
     public void clear() throws DataAccessException {
-        String statement = "DELETE FROM gameData"; //think about using truncate users
+        String statement = "TRUNCATE gameData"; //think about using truncate users
         executeUpdate(statement);
     }
 
@@ -102,9 +104,9 @@ public class SQLGameDAO implements GameDAO {
                 }
                 ps.executeUpdate();
 
-                var rs = ps.executeQuery();
+                var rs = ps.getGeneratedKeys();
                 if (rs.next()) {
-                    return rs.getInt("id");
+                    return rs.getInt(1);
                 }
             }
         } catch (SQLException e) {
@@ -112,5 +114,32 @@ public class SQLGameDAO implements GameDAO {
         }
         return -1;
     }
+
+//    private void updateGame(String statement, String whiteUsername, String blackUsername, int id) throws DataAccessException {
+//        try (var conn = DatabaseManager.getConnection()) {
+//            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+//                ps.setString(1, whiteUsername);
+//                ps.setString(2, blackUsername);
+//                ps.setInt(3, id);
+//
+////                for (var i = 0; i < params.length; i++) {
+////                    var param = params[i];
+////                    if (param instanceof String p) ps.setString(i + 1, p);
+////                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
+////                    else if (param instanceof GameData p) ps.setString(i + 1, p.toString());
+////                    else if (param == null) ps.setNull(i + 1, NULL);
+////                }
+//                ps.executeUpdate();
+//
+//                var rs = ps.getGeneratedKeys();
+////                if (rs.next()) {
+////                    return rs.getInt(1);
+////                }
+//            }
+//        } catch (SQLException e) {
+//            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
+//        }
+////        return -1;
+//    }
 
 }

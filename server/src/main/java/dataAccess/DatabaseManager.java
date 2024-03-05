@@ -34,10 +34,26 @@ public class DatabaseManager {
     /**
      * Creates the database if it does not already exist.
      */
-    static void createDatabase() throws DataAccessException {
+    static public void createDatabase() throws DataAccessException {
         try {
             var statement = "CREATE DATABASE IF NOT EXISTS " + databaseName;
             var conn = DriverManager.getConnection(connectionUrl, user, password);
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.executeUpdate();
+            }
+            statement = "USE chess";
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.executeUpdate();
+            }
+            statement = "CREATE TABLE IF NOT EXISTS users(username varchar(128), password blob, email varchar(128))";
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.executeUpdate();
+            }
+            statement = "CREATE TABLE IF NOT EXISTS authData(token varchar(128), username varchar(128))";
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.executeUpdate();
+            }
+            statement = "CREATE TABLE IF NOT EXISTS gameData(id int AUTO_INCREMENT key, whiteUsername varchar(128), blackUsername varchar(128), gameName varchar(128), game varchar(128))";
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();
             }

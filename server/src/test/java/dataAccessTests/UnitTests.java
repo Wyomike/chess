@@ -5,6 +5,8 @@ import model.AuthData;
 import model.LoginRequest;
 import model.UserData;
 import org.junit.jupiter.api.*;
+import passoffTests.obfuscatedTestClasses.TestServerFacade;
+import passoffTests.testClasses.TestModels;
 import server.Server;
 import service.ClearService;
 import service.GameService;
@@ -16,9 +18,9 @@ public class UnitTests {
     private UserData testUser = new UserData("username", "password", "email");
     private UserData newTestUser = new UserData("1", "2", "3");
 
-    private static AuthDAO authDAO = new MemoryAuthDAO();
-    private static UserDAO userDAO = new MemoryUserDAO();
-    private static GameDAO gameDAO = new MemoryGameDAO();
+    private static AuthDAO authDAO = new SQLAuthDAO();
+    private static UserDAO userDAO = new SQLUserDAO();
+    private static GameDAO gameDAO = new SQLGameDAO();
 
     private static ClearService clearService = new ClearService(authDAO, gameDAO, userDAO);
     private static UserService userService = new UserService(authDAO, userDAO);
@@ -26,6 +28,17 @@ public class UnitTests {
 
     private static Server server;
     private String existingAuth;
+
+
+//    @BeforeAll
+//    public static void init() {
+//        server = new Server();
+//        var port = server.run(0);
+//        System.out.println("Started test HTTP server on " + port);
+//
+//
+//    }
+
 
     @BeforeEach //WILL NEED TO INITIALIZE DATABASE
     public void init() {
@@ -36,6 +49,13 @@ public class UnitTests {
         clearService = new ClearService(authDAO, gameDAO, userDAO);
         userService = new UserService(authDAO, userDAO);
         gameService = new GameService(authDAO, gameDAO);
+
+        try {
+            clearService.clear();
+        }
+        catch (DataAccessException accessException) {
+            System.out.println(accessException.getMessage());
+        }
     }
 
     @Test
