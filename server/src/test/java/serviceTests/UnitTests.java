@@ -34,9 +34,9 @@ public class UnitTests { //MAKE SURE HAVE A GOOD BEFORE ALL WITH CLEARING, verif
 
     @BeforeEach
     public void init() {
-        authDAO = new MemoryAuthDAO();
-        userDAO = new MemoryUserDAO();
-        gameDAO = new MemoryGameDAO();
+        authDAO = new SQLAuthDAO();
+        userDAO = new SQLUserDAO();
+        gameDAO = new SQLGameDAO();
 
         clearService = new ClearService(authDAO, gameDAO, userDAO);
         userService = new UserService(authDAO, userDAO);

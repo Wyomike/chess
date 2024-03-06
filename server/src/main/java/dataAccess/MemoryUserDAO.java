@@ -15,22 +15,22 @@ public class MemoryUserDAO implements UserDAO {
         return data;
     }
 
-    public Collection<UserData> listUsers() {
-        return userData.values();
-    }
+    //protected Collection<UserData> listUsers() {
+    //    return userData.values();
+    //}
 
     @Override
     public UserData getUser(String username) {
         return userData.get(username);
     }
     @Override
-    public boolean getLogin(String username, String password) {
-        return userData.get(username).password().equals(password);
-    }
-    @Override
-    public void deleteUserData(String username) {
-        userData.remove(username);
-    }
+//    public boolean getLogin(String username, String password) {
+//        return userData.get(username).password().equals(password);
+//    }
+//    @Override
+//    public void deleteUserData(String username) {
+//        userData.remove(username);
+//    }
 
     public void clear() {
         userData.clear();

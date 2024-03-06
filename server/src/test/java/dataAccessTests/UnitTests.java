@@ -2,6 +2,7 @@ package dataAccessTests;
 
 import dataAccess.*;
 import model.AuthData;
+import model.GameData;
 import model.LoginRequest;
 import model.UserData;
 import org.junit.jupiter.api.*;
@@ -11,6 +12,11 @@ import server.Server;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
+import spark.utils.Assert;
+
+import javax.xml.crypto.Data;
+import java.util.ArrayList;
+import java.util.Collection;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UnitTests {
@@ -29,22 +35,11 @@ public class UnitTests {
     private static Server server;
     private String existingAuth;
 
-
-//    @BeforeAll
-//    public static void init() {
-//        server = new Server();
-//        var port = server.run(0);
-//        System.out.println("Started test HTTP server on " + port);
-//
-//
-//    }
-
-
-    @BeforeEach //WILL NEED TO INITIALIZE DATABASE
+    @BeforeEach
     public void init() {
         authDAO = new SQLAuthDAO();
         userDAO = new SQLUserDAO();
-        gameDAO = new MemoryGameDAO();
+        gameDAO = new SQLGameDAO();
 
         clearService = new ClearService(authDAO, gameDAO, userDAO);
         userService = new UserService(authDAO, userDAO);
@@ -60,64 +55,53 @@ public class UnitTests {
 
     @Test
     @Order(1)
-    @DisplayName("Clear")
-    public void clearTest() throws Exception {
+    @DisplayName("User Clear")
+    public void userClearTest() throws Exception {
         userDAO.addUser(testUser.username(), testUser.password(), testUser.email());
         userDAO.addUser(newTestUser.username(), newTestUser.password(), newTestUser.email());
-        String id1 = authDAO.addAuth(testUser.username()).authToken();
-        String id2 = authDAO.addAuth(newTestUser.username()).authToken();
-        int gameID = gameDAO.addGame("game").gameID();
-        gameDAO.joinGame(gameID, testUser.username(), null);
-        clearService.clear();
+        userDAO.clear();
 
         Assertions.assertNull(userDAO.getUser(testUser.username()));
         Assertions.assertNull(userDAO.getUser(newTestUser.username()));
-        Assertions.assertNull(authDAO.getAuth(id1));
-        Assertions.assertNull(authDAO.getAuth(id2));
-        Assertions.assertNull(gameDAO.getGame(0));
     }
-
     @Test
     @Order(2)
-    @DisplayName("Register")
-    public void registerTest() throws Exception {
-        AuthData result = userService.register(testUser);
+    @DisplayName("Add User")
+    public void addUserTest() throws Exception {
+        userDAO.addUser(testUser.username(), testUser.password(), testUser.email());
+        UserData result = userDAO.getUser(testUser.username());
         Assertions.assertEquals(result.username(), testUser.username());
-        Assertions.assertNotNull(result.authToken());
     }
     @Test
     @Order(3)
-    @DisplayName("Bad Register")
-    public void badRegisterTest() throws Exception {
+    @DisplayName("Bad Add User")
+    public void badAddUserTest() throws Exception {
         try {
-            AuthData result = userService.register(testUser);
-            AuthData doubleResult = userService.register(testUser);
-            Assertions.assertEquals(result.username(), testUser.username());
-            Assertions.assertNotNull(result.authToken());
+            userDAO.addUser(testUser.username(), testUser.password(), testUser.email());
+            userDAO.addUser(testUser.username(), testUser.password(), testUser.email());
+            UserData result = userDAO.getUser(testUser.username());
         }
         catch(DataAccessException accessException) {
             Assertions.assertEquals("Error: already taken", accessException.getMessage());
         }
     }
-
     @Test
     @Order(4)
-    @DisplayName("Login")
-    public void loginTest() throws Exception {
-        userService.register(testUser);
-        LoginRequest loginRequest = new LoginRequest(testUser.username(), testUser.password());
-        AuthData result = userService.login(loginRequest);
-        Assertions.assertEquals(result.username(), testUser.username());
-        Assertions.assertNotNull(result.authToken());
+    @DisplayName("Get User")
+    public void getUserTest() throws Exception {
+        UserData user1 = userDAO.addUser(testUser.username(), testUser.password(), testUser.email());
+        UserData user2 = userDAO.addUser(newTestUser.username(), newTestUser.password(), newTestUser.email());
+        UserData result = userDAO.getUser(testUser.username());
+        UserData result2 = userDAO.getUser(newTestUser.username());
+        Assertions.assertEquals(user1, result);
+        Assertions.assertEquals(user2, result2);
     }
     @Test
     @Order(5)
-    @DisplayName("Bad Login")
-    public void badLoginTest() throws Exception {
+    @DisplayName("Get nonexistent user")
+    public void badGetUserTest() throws Exception {
         try {
-            userService.register(testUser);
-            LoginRequest loginRequest = new LoginRequest("who?", "What?");
-            userService.login(loginRequest);
+            UserData result = userDAO.getUser(testUser.username());
         }
         catch (DataAccessException accessException) {
             Assertions.assertEquals("Error: unauthorized", accessException.getMessage());
@@ -126,124 +110,234 @@ public class UnitTests {
 
     @Test
     @Order(6)
-    @DisplayName("Logout")
-    public void LogoutTest() throws Exception {
-        userService.register(testUser);
-        LoginRequest loginRequest = new LoginRequest(testUser.username(), testUser.password());
-        String authToken = userService.login(loginRequest).authToken();
-        userService.logout(authToken);
-        Assertions.assertNull(authDAO.getAuth(authToken));
+    @DisplayName("Clear Auth")
+    public void clearAuthTest() throws Exception {
+        authDAO.addAuth(testUser.username());
+        authDAO.addAuth(newTestUser.username());
+        userDAO.clear();
+
+        Assertions.assertNull(userDAO.getUser(testUser.username()));
+        Assertions.assertNull(userDAO.getUser(newTestUser.username()));
     }
     @Test
     @Order(7)
-    @DisplayName("Logout Nonexistant")
-    public void badLogoutTest() throws Exception {
+    @DisplayName("Add Auth")
+    public void addAuthTest() throws Exception {
+        AuthData testAuth = authDAO.addAuth(testUser.username());
+        AuthData result = authDAO.getAuth(testAuth.authToken());
+        Assertions.assertEquals(testAuth, result);
+    }
+    @Test
+    @Order(8)
+    @DisplayName("Add bad auth")
+    public void badAddAuthTest() throws Exception {
         try {
-            userService.register(testUser);
-            LoginRequest loginRequest = new LoginRequest(testUser.username(), testUser.password());
-            String authToken = userService.login(loginRequest).authToken();
-            userService.logout("a");
-            Assertions.assertNull(authDAO.getAuth(authToken));
+            AuthData testAuth = authDAO.addAuth("");
         }
         catch (DataAccessException accessException) {
             Assertions.assertEquals("Error: unauthorized", accessException.getMessage());
         }
-    }
-
-    @Test
-    @Order(8)
-    @DisplayName("Create game")
-    public void createGame() throws Exception {
-        AuthData auth1 = userService.register(testUser);
-        AuthData auth2 = userService.register(newTestUser);
-        int id = gameService.createGame(gameDAO.addGame("game"), auth1.authToken()).gameID();
-        gameDAO.joinGame(id, auth1.username(), auth2.username());
-        Assertions.assertEquals(testUser.username(), gameDAO.getGame(id).whiteUsername());
-        Assertions.assertEquals(newTestUser.username(), gameDAO.getGame(id).blackUsername());
-        Assertions.assertEquals(2, id);
     }
     @Test
     @Order(9)
-    @DisplayName("Create game with invalid auth")
-    public void badCreateGame() throws Exception {
-        try {
-            AuthData auth1 = userService.register(testUser);
-            AuthData auth2 = userService.register(newTestUser);
-            int id = gameService.createGame(gameDAO.addGame("game"), "???").gameID();
-            gameDAO.joinGame(1, auth1.username(), auth2.username());
-            Assertions.assertEquals(testUser.username(), gameDAO.getGame(id).whiteUsername());
-            Assertions.assertEquals(newTestUser.username(), gameDAO.getGame(id).blackUsername());
-            Assertions.assertEquals(2, id);
-        }
-        catch (DataAccessException accessException) {
-            Assertions.assertEquals("Error: unauthorized", accessException.getMessage());
-        }
+    @DisplayName("Get auth")
+    public void getAuthTest() throws Exception {
+        AuthData test = authDAO.addAuth("test");
+        AuthData result = authDAO.getAuth(test.authToken());
+        Assertions.assertEquals(test, result);
     }
-
     @Test
     @Order(10)
-    @DisplayName("Join game")
-    public void joinGame() throws Exception {
-        AuthData auth1 = userService.register(testUser);
-        AuthData auth2 = userService.register(newTestUser);
-        int id = gameService.createGame(gameDAO.addGame("game"), auth1.authToken()).gameID();
-        gameService.joinGame("WHITE", id, auth1.authToken());
-        gameService.joinGame("BLACK", id, auth2.authToken());
-        Assertions.assertEquals(2, id);
-        Assertions.assertEquals(testUser.username(), gameDAO.getGame(id).whiteUsername());
-        Assertions.assertEquals(newTestUser.username(), gameDAO.getGame(id).blackUsername());
+    @DisplayName("Get bad auth")
+    public void getBadAuthTest() throws Exception {
+        try {
+            AuthData result = authDAO.getAuth("test.authToken()");
+        }
+        catch (DataAccessException accessException) {
+            Assertions.assertEquals("authToken DNE", accessException.getMessage());
+        }
+
     }
     @Test
     @Order(11)
-    @DisplayName("Join bad game")
-    public void badJoinGame() throws Exception {
+    @DisplayName("Delete auth")
+    public void delAuthTest() throws Exception {
         try {
-            AuthData auth1 = userService.register(testUser);
-            AuthData auth2 = userService.register(newTestUser);
-            int id = gameService.createGame(gameDAO.addGame("game"), auth1.authToken()).gameID();
-            gameService.joinGame("WHITE", 4, auth1.authToken());
-            gameService.joinGame("BLACK", id, auth2.authToken());
-            Assertions.assertEquals(2, id);
-            Assertions.assertEquals(testUser.username(), gameDAO.getGame(id).whiteUsername());
-            Assertions.assertEquals(newTestUser.username(), gameDAO.getGame(id).blackUsername());
+            AuthData result = authDAO.addAuth(testUser.username());
+            authDAO.deleteAuthData(result.authToken());
         }
         catch (DataAccessException accessException) {
-            Assertions.assertEquals("Error: bad request", accessException.getMessage());
+            Assertions.assertEquals("authToken DNE", accessException.getMessage());
+        }
+    }
+    @Test
+    @Order(12)
+    @DisplayName("Delete bad auth")
+    public void delBadAuthTest() throws Exception {
+        try {
+            AuthData result = authDAO.addAuth(testUser.username());
+            authDAO.deleteAuthData("huh");
+        }
+        catch (DataAccessException accessException) {
+            Assertions.assertEquals("authToken DNE", accessException.getMessage());
         }
     }
 
     @Test
-    @Order(12)
-    @DisplayName("List games")
-    public void listGame() throws Exception {
-        AuthData auth1 = userService.register(testUser);
-        AuthData auth2 = userService.register(newTestUser);
-        int id = gameService.createGame(gameDAO.addGame("game"), auth1.authToken()).gameID();
-        gameService.joinGame("WHITE", id, auth1.authToken());
-        gameService.joinGame("BLACK", id, auth2.authToken());
-        Assertions.assertEquals(2, id);
-        Assertions.assertEquals(testUser.username(), gameDAO.getGame(id).whiteUsername());
-        Assertions.assertEquals(newTestUser.username(), gameDAO.getGame(id).blackUsername());
-        gameService.listGames(auth1.authToken());
+    @Order(13)
+    @DisplayName("Create game")
+    public void createGameTest() throws Exception {
+        GameData game = gameDAO.addGame("gaaame");
+        GameData game2 = gameDAO.addGame("game");
+        GameData result = gameDAO.getGame(game.gameID());
+        Assertions.assertEquals(game.gameName(), result.gameName());
+        Assertions.assertEquals(game.gameID(), result.gameID());
+        Assertions.assertEquals(game.blackUsername(), result.blackUsername());
+        Assertions.assertEquals(game.whiteUsername(), result.whiteUsername());
+        Assertions.assertEquals(2, gameDAO.getGame(game2.gameID()).gameID());
     }
     @Test
     @Order(13)
-    @DisplayName("List games with bad auth")
-    public void badListGame() throws Exception {
+    @DisplayName("Create bad game")
+    public void createBadGameTest() throws Exception {
         try {
-            AuthData auth1 = userService.register(testUser);
-            AuthData auth2 = userService.register(newTestUser);
-            int id = gameService.createGame(gameDAO.addGame("game"), auth1.authToken()).gameID();
-            gameService.joinGame("WHITE", id, auth1.authToken());
-            gameService.joinGame("BLACK", id, auth2.authToken());
-            Assertions.assertEquals(2, id);
-            Assertions.assertEquals(testUser.username(), gameDAO.getGame(id).whiteUsername());
-            Assertions.assertEquals(newTestUser.username(), gameDAO.getGame(id).blackUsername());
-            gameService.listGames("whop whop");
+            GameData game = gameDAO.addGame("");
+            GameData game2 = gameDAO.addGame("game");
+            GameData result = gameDAO.getGame(game.gameID());
+            Assertions.assertEquals(game.gameName(), result.gameName());
+            Assertions.assertEquals(game.gameID(), result.gameID());
+            Assertions.assertEquals(game.blackUsername(), result.blackUsername());
+            Assertions.assertEquals(game.whiteUsername(), result.whiteUsername());
+            Assertions.assertEquals(2, gameDAO.getGame(game2.gameID()).gameID());
         }
         catch (DataAccessException accessException) {
-            Assertions.assertEquals("Error: unauthorized", accessException.getMessage());
+            Assertions.assertEquals("Error: no name", accessException.getMessage());
         }
     }
-
+    @Test
+    @Order(14)
+    @DisplayName("Clear games")
+    public void clearGamesTest() throws Exception {
+        GameData game = gameDAO.addGame("game");
+        gameDAO.clear();
+        GameData result = gameDAO.getGame(game.gameID());
+        Assertions.assertNull(result);
+    }
+    @Test
+    @Order(14)
+    @DisplayName("Get game")
+    public void getGameTest() throws Exception {
+        GameData game = gameDAO.addGame("game");
+        GameData game2 = gameDAO.addGame("game2");
+        GameData result = gameDAO.getGame(game.gameID());
+        Assertions.assertEquals(game.gameName(), result.gameName());
+        Assertions.assertEquals(game.gameID(), result.gameID());
+        Assertions.assertEquals(game.blackUsername(), result.blackUsername());
+        Assertions.assertEquals(game.whiteUsername(), result.whiteUsername());
+    }
+    @Test
+    @Order(15)
+    @DisplayName("Get bad game")
+    public void getBadGameTest() throws Exception {
+        GameData game = gameDAO.addGame("game");
+        GameData game2 = gameDAO.addGame("game2");
+        GameData result = gameDAO.getGame(3);
+        Assertions.assertNull(result);
+    }
+    @Test
+    @Order(16)
+    @DisplayName("List games")
+    public void listGameTest() throws Exception {
+        GameData game = gameDAO.addGame("game");
+        GameData game2 = gameDAO.addGame("game2");
+        GameData game3 = gameDAO.addGame("game3");
+        gameDAO.joinGame(3, "Hi", null);
+        gameDAO.joinGame(2, null, "hey");
+        Collection<GameData> games = new ArrayList<>();
+        games.add(game);
+        games.add(game2);
+        games.add(game3);
+        Collection<GameData> result = gameDAO.listGame();
+        Assertions.assertEquals(games.size(), result.size());
+    }
+    @Test
+    @Order(17)
+    @DisplayName("List no games")
+    public void listNoGameTest() throws Exception {
+        GameData game = gameDAO.addGame("game");
+        GameData game2 = gameDAO.addGame("game2");
+        GameData game3 = gameDAO.addGame("game3");
+        gameDAO.joinGame(3, "Hi", null);
+        gameDAO.joinGame(2, null, "hey");
+        gameDAO.clear();
+        Collection<GameData> games = new ArrayList<>();
+        Collection<GameData> result = gameDAO.listGame();
+        Assertions.assertEquals(games.size(), result.size());
+    }
+    @Test
+    @Order(18)
+    @DisplayName("Join game")
+    public void joinGameTest() throws Exception {
+        gameDAO.addGame("game");
+        gameDAO.addGame("game2");
+        gameDAO.addGame("game3");
+        gameDAO.joinGame(3, "Hi", null);
+        gameDAO.joinGame(2, null, "hey");
+        gameDAO.joinGame(1, "1", "2");
+        GameData game1 = gameDAO.getGame(1);
+        GameData game2 = gameDAO.getGame(2);
+        GameData game3 = gameDAO.getGame(3);
+        Assertions.assertEquals("1", game1.whiteUsername());
+        Assertions.assertEquals("2", game1.blackUsername());
+        Assertions.assertEquals("Hi", game3.whiteUsername());
+        Assertions.assertNull(game3.blackUsername());
+        Assertions.assertNull(game2.whiteUsername());
+        Assertions.assertEquals("hey", game2.blackUsername());
+    }
+    @Test
+    @Order(19)
+    @DisplayName("Join bad game")
+    public void joinBadGameTest() throws Exception {
+        try {
+            gameDAO.addGame("game");
+            gameDAO.addGame("game2");
+            gameDAO.addGame("game3");
+            gameDAO.joinGame(2, null, "hey");
+            gameDAO.joinGame(1, "1", "2");
+            gameDAO.joinGame(4, "Hi", null);
+            GameData game1 = gameDAO.getGame(1);
+            GameData game2 = gameDAO.getGame(2);
+            Assertions.assertEquals("1", game1.whiteUsername());
+            Assertions.assertEquals("2", game1.blackUsername());
+            Assertions.assertNull(game2.whiteUsername());
+            Assertions.assertEquals("hey", game2.blackUsername());
+        }
+        catch (DataAccessException accessException) {
+            Assertions.assertEquals("Error: Game DNE", accessException.getMessage());
+        }
+    }
+    @Test
+    @Order(20)
+    @DisplayName("Join bad game")
+    public void joinBadColorTest() throws Exception {
+        try {
+            gameDAO.addGame("game");
+            gameDAO.addGame("game2");
+            gameDAO.addGame("game3");
+            gameDAO.joinGame(1, "1", "2");
+            gameDAO.joinGame(1, "3", "4");
+            GameData game1 = gameDAO.getGame(1);
+            GameData game2 = gameDAO.getGame(2);
+            GameData game3 = gameDAO.getGame(3);
+            Assertions.assertEquals("1", game1.whiteUsername());
+            Assertions.assertEquals("2", game1.blackUsername());
+            Assertions.assertEquals("Hi", game3.whiteUsername());
+            Assertions.assertNull(game3.blackUsername());
+            Assertions.assertNull(game2.whiteUsername());
+            Assertions.assertEquals("hey", game2.blackUsername());
+        }
+        catch (DataAccessException accessException) {
+            Assertions.assertEquals("Error: already taken", accessException.getMessage());
+        }
+    }
 }

@@ -22,30 +22,13 @@ public class SQLUserDAO implements UserDAO {
     public UserData addUser(String username, String password, String email) throws DataAccessException {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         String hashedPassword = encoder.encode(password);
+        if (getUser(username) != null) throw new DataAccessException("Error: already taken");
         UserData data = new UserData(username, hashedPassword, email);
 
         String statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
         //String json = new Gson().toJson(data);
         executeUpdate(statement, username, hashedPassword, email);
         return data;
-    }
-    //I just got rid of response exceptions, we'll find out later if we need them. If need, reference petshop.
-    public Collection<UserData> listUsers() throws DataAccessException {
-        ArrayList<UserData> userData = new ArrayList<>();
-        try (Connection conn = DatabaseManager.getConnection()) {
-            String statement = "SELECT username, password, email FROM users";
-            try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    while (rs.next()) {
-                        userData.add(makeData(rs));
-                    }
-                }
-            }
-        }
-        catch (DataAccessException | SQLException accessException) {
-            throw new DataAccessException(accessException.getMessage());
-        }
-        return (userData);
     }
 
     public UserData getUser(String username) throws DataAccessException {
@@ -66,34 +49,6 @@ public class SQLUserDAO implements UserDAO {
         catch (SQLException accessException) {
             throw new DataAccessException(accessException.getMessage());
         }
-        //return new UserData(username, "a", "a");
-    }
-
-    public boolean getLogin(String username, String password) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            String statement = "SELECT username, password FROM users WHERE username=?";
-            try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                ps.setString(1, username);
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        //makeData(rs);
-                        return true;
-                    }
-                    else {
-                        return false;
-                    }
-                }
-            }
-        }
-        catch (DataAccessException | SQLException accessException) {
-            throw new DataAccessException(accessException.getMessage());
-        }
-        //return false;
-    }
-
-    public void deleteUserData(String username)  throws DataAccessException {
-        String statement = "DELETE FROM users WHERE username = ?";
-        executeUpdate(statement, username);
     }
 
     public void clear()  throws DataAccessException {

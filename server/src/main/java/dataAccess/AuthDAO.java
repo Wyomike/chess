@@ -8,7 +8,7 @@ import java.util.Collection;
 public interface AuthDAO {
     AuthData addAuth(String username) throws DataAccessException;
 
-    Collection<AuthData> listAuth() throws DataAccessException;
+    //Collection<AuthData> listAuth() throws DataAccessException;
 
     AuthData getAuth(String id) throws DataAccessException;
 
