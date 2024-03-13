@@ -111,6 +111,10 @@ public class ChessBoard {
         return null; //shouldn't ever happen.
     }
 
+    public ChessPiece[][] getBoard() {
+        return board;
+    }
+
     @Override
     public String toString() {
         StringBuilder boardStr = new StringBuilder();
