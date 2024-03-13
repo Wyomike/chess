@@ -1,5 +1,6 @@
 import chess.*;
 import ui.ChessBoardDraw;
+import ui.Menu;
 
 public class Main {
     public static void main(String[] args) {
@@ -7,7 +8,9 @@ public class Main {
         System.out.println("♕ 240 Chess Client: " + piece);
         ChessBoard chess = new ChessBoard();
         chess.resetBoard();
-        ChessBoardDraw draw = new ChessBoardDraw(chess);
-        draw.drawBoard();
+        Menu menu = new Menu(chess);
+        //ChessBoardDraw draw = new ChessBoardDraw(chess);
+        //draw.drawBoth();
+        menu.run();
     }
 }

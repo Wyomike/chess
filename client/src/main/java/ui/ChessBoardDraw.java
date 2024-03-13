@@ -16,26 +16,38 @@ public class ChessBoardDraw {
         this.board = board.getBoard();
     }
 
+    public void drawBoth() {
+        drawBoard();
+        setBlack();
+        out.println();
+        drawBoardReversed();
+    }
     public void drawBoard() {
-        setLightGray();
-        out.print("    a   b   c   d   e   f   g   h     \n");
+        drawHeader(false);
         for (int i = 0; i < 8; ++i) {
-            setLightGray();
-            out.print(" ");
-            out.print(i + 1);
-            out.print(" ");
+            edgeNumber(i, false);
             for (int j = 0; j < 8; ++j) {
                 drawSquare(i,j);
             }
-            setLightGray();
-            out.print(SET_TEXT_COLOR_BLACK);
-            out.print(" ");
-            out.print(i + 1);
-            out.print(" ");
+            edgeNumber(i, false);
+            setBlack();
             out.print("\n");
         }
+        drawHeader(false);
+    }
 
-        out.print("    a   b   c   d   e   f   g   h     \n");
+    public void drawBoardReversed() {
+        drawHeader(true);
+        for (int i = 0; i < 8; ++i) {
+            edgeNumber(i, true);
+            for (int j = 0; j < 8; ++j) {
+                drawSquare(7 - i,7 - j);
+            }
+            edgeNumber(i, true);
+            setBlack();
+            out.print("\n");
+        }
+        drawHeader(true);
     }
 
     private void drawSquare(int i, int j) {
@@ -50,6 +62,34 @@ public class ChessBoardDraw {
         }
         else out.print("  ");
         out.print(" ");//break this out into a printSquare(i,j) function
+    }
+    private void drawHeader(boolean reversed) {
+        if (!reversed) {
+            setLightGray();
+            out.print("    a   b   c   d   e   f   g   h     ");
+            setBlack();
+            out.print("\n");
+        }
+        else {
+            setLightGray();
+            out.print("    h   g   f   e   d   c   b   a     ");
+            setBlack();
+            out.print("\n");
+        }
+    }
+    private void edgeNumber(int i, boolean reversed) {
+        if (!reversed) {
+            setLightGray();
+            out.print(" ");
+            out.print(i + 1);
+            out.print(" ");
+        }
+        else {
+            setLightGray();
+            out.print(" ");
+            out.print(8 - i);
+            out.print(" ");
+        }
     }
 
     private void setBlack() {
