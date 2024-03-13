@@ -1,6 +1,7 @@
 package ui;
 
 import chess.ChessBoard;
+import chess.ChessGame;
 import chess.ChessPiece;
 
 import java.io.PrintStream;
@@ -17,24 +18,38 @@ public class ChessBoardDraw {
 
     public void drawBoard() {
         setLightGray();
-        out.print("    a  b   c  d  e  f  g  h    \n");
+        out.print("    a   b   c   d   e   f   g   h     \n");
         for (int i = 0; i < 8; ++i) {
             setLightGray();
             out.print(" ");
             out.print(i + 1);
             out.print(" ");
             for (int j = 0; j < 8; ++j) {
-                if ((i + j) % 2 == 0) setWhite();
-                else setBlack();
-                out.print("   "); //break this out into a printSquare(i,j) function
+                drawSquare(i,j);
             }
             setLightGray();
+            out.print(SET_TEXT_COLOR_BLACK);
             out.print(" ");
             out.print(i + 1);
             out.print(" ");
             out.print("\n");
         }
-        out.print("    a  b   c  d  e  f  g  h    \n");
+
+        out.print("    a   b   c   d   e   f   g   h     \n");
+    }
+
+    private void drawSquare(int i, int j) {
+        ChessPiece piece = board[i][j];
+        if ((i + j) % 2 == 0) setWhite();
+        else setBlack();
+        out.print(" ");
+        if (piece != null) {
+            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) out.print(SET_TEXT_COLOR_LIGHT_GREY);
+            else out.print(SET_TEXT_COLOR_BLUE);
+            out.print(piece.toString());
+        }
+        else out.print("  ");
+        out.print(" ");//break this out into a printSquare(i,j) function
     }
 
     private void setBlack() {
