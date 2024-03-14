@@ -10,8 +10,8 @@ import java.nio.charset.StandardCharsets;
 import static ui.EscapeSequences.*;
 
 public class ChessBoardDraw {
-    PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-    ChessPiece[][] board;
+    private PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+    private ChessPiece[][] board;
     public ChessBoardDraw(ChessBoard board) {
         this.board = board.getBoard();
     }
