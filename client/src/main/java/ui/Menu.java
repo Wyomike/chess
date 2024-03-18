@@ -6,7 +6,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
-public class Menu {
+public class Menu {//This is client? maybe I should refactor it to that.
     private PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
     private Scanner scanner = new Scanner(System.in);
     private ChessBoardDraw boardDraw;
