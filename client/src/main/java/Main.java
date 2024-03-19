@@ -16,10 +16,13 @@ public class Main {
         //menu.run();
         ServerFacade facade = new ServerFacade("http://localhost:8080");
         try {
+            facade.clear();
             facade.register("1","1","1");
             System.out.print("WUT");
             AuthData auth = facade.register("2","2","2");
-            System.out.print(facade.createGame("game", auth.authToken()));
+            System.out.println(facade.createGame("game", auth.authToken()));
+            facade.joinGame("BLACK", 1, auth.authToken());
+            System.out.print(facade.listGames(auth.authToken()));
         }
         catch (Exception e) {
             System.out.print(e.getMessage());

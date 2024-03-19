@@ -33,7 +33,7 @@ public class GameHandler {
     public Object createGame(Request req, Response res) {
         String authToken = req.headers("authorization");
         try {
-            GameData game = new Gson().fromJson(req.body(), GameData.class);
+            String game = new Gson().fromJson(req.body(), String.class);
             GameData resultGame = service.createGame(game, authToken);
             res.status(200);
             return new Gson().toJson(new GameID(resultGame.gameID()));

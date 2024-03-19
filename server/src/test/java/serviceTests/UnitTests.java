@@ -148,11 +148,11 @@ public class UnitTests { //MAKE SURE HAVE A GOOD BEFORE ALL WITH CLEARING, verif
     public void createGame() throws Exception {
         AuthData auth1 = userService.register(testUser);
         AuthData auth2 = userService.register(newTestUser);
-        int id = gameService.createGame(gameDAO.addGame("game"), auth1.authToken()).gameID();
+        int id = gameService.createGame("game", auth1.authToken()).gameID();
         gameDAO.joinGame(id, auth1.username(), auth2.username());
         Assertions.assertEquals(testUser.username(), gameDAO.getGame(id).whiteUsername());
         Assertions.assertEquals(newTestUser.username(), gameDAO.getGame(id).blackUsername());
-        Assertions.assertEquals(2, id);
+        Assertions.assertEquals(1, id);
     }
     @Test
     @Order(9)
@@ -161,7 +161,7 @@ public class UnitTests { //MAKE SURE HAVE A GOOD BEFORE ALL WITH CLEARING, verif
         try {
             AuthData auth1 = userService.register(testUser);
             AuthData auth2 = userService.register(newTestUser);
-            int id = gameService.createGame(gameDAO.addGame("game"), "???").gameID();
+            int id = gameService.createGame("game", "???").gameID();
             gameDAO.joinGame(1, auth1.username(), auth2.username());
             Assertions.assertEquals(testUser.username(), gameDAO.getGame(id).whiteUsername());
             Assertions.assertEquals(newTestUser.username(), gameDAO.getGame(id).blackUsername());
@@ -178,10 +178,10 @@ public class UnitTests { //MAKE SURE HAVE A GOOD BEFORE ALL WITH CLEARING, verif
     public void joinGame() throws Exception {
         AuthData auth1 = userService.register(testUser);
         AuthData auth2 = userService.register(newTestUser);
-        int id = gameService.createGame(gameDAO.addGame("game"), auth1.authToken()).gameID();
+        int id = gameService.createGame("game", auth1.authToken()).gameID();
         gameService.joinGame("WHITE", id, auth1.authToken());
         gameService.joinGame("BLACK", id, auth2.authToken());
-        Assertions.assertEquals(2, id);
+        Assertions.assertEquals(1, id);
         Assertions.assertEquals(testUser.username(), gameDAO.getGame(id).whiteUsername());
         Assertions.assertEquals(newTestUser.username(), gameDAO.getGame(id).blackUsername());
     }
@@ -192,7 +192,7 @@ public class UnitTests { //MAKE SURE HAVE A GOOD BEFORE ALL WITH CLEARING, verif
         try {
             AuthData auth1 = userService.register(testUser);
             AuthData auth2 = userService.register(newTestUser);
-            int id = gameService.createGame(gameDAO.addGame("game"), auth1.authToken()).gameID();
+            int id = gameService.createGame("game", auth1.authToken()).gameID();
             gameService.joinGame("WHITE", 4, auth1.authToken());
             gameService.joinGame("BLACK", id, auth2.authToken());
             Assertions.assertEquals(2, id);
@@ -210,10 +210,10 @@ public class UnitTests { //MAKE SURE HAVE A GOOD BEFORE ALL WITH CLEARING, verif
     public void listGame() throws Exception {
         AuthData auth1 = userService.register(testUser);
         AuthData auth2 = userService.register(newTestUser);
-        int id = gameService.createGame(gameDAO.addGame("game"), auth1.authToken()).gameID();
+        int id = gameService.createGame("game", auth1.authToken()).gameID();
         gameService.joinGame("WHITE", id, auth1.authToken());
         gameService.joinGame("BLACK", id, auth2.authToken());
-        Assertions.assertEquals(2, id);
+        Assertions.assertEquals(1, id);
         Assertions.assertEquals(testUser.username(), gameDAO.getGame(id).whiteUsername());
         Assertions.assertEquals(newTestUser.username(), gameDAO.getGame(id).blackUsername());
         gameService.listGames(auth1.authToken());
@@ -225,10 +225,10 @@ public class UnitTests { //MAKE SURE HAVE A GOOD BEFORE ALL WITH CLEARING, verif
         try {
             AuthData auth1 = userService.register(testUser);
             AuthData auth2 = userService.register(newTestUser);
-            int id = gameService.createGame(gameDAO.addGame("game"), auth1.authToken()).gameID();
+            int id = gameService.createGame("game", auth1.authToken()).gameID();
             gameService.joinGame("WHITE", id, auth1.authToken());
             gameService.joinGame("BLACK", id, auth2.authToken());
-            Assertions.assertEquals(2, id);
+            Assertions.assertEquals(1, id);
             Assertions.assertEquals(testUser.username(), gameDAO.getGame(id).whiteUsername());
             Assertions.assertEquals(newTestUser.username(), gameDAO.getGame(id).blackUsername());
             gameService.listGames("whop whop");

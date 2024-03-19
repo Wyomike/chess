@@ -37,6 +37,7 @@ public class ServerFacade {
             InputStream responseBody = connection.getInputStream();
             InputStreamReader reader = new InputStreamReader(responseBody);
             AuthData response = new Gson().fromJson(reader, AuthData.class);
+            connection.disconnect();
             return response;
         }
         else {
@@ -87,14 +88,16 @@ public class ServerFacade {
         }
     }
 
-    public Collection<GameData> listGames(String authToken) throws IOException, ResponseException {
+    public Object listGames(String authToken) throws IOException, ResponseException {
 
         HttpURLConnection connection = prepConnection("GET", "/game");
+        connection.setRequestProperty("Authorization", authToken);
 
         if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) { //handle input
             InputStream responseBody = connection.getInputStream();
             InputStreamReader reader = new InputStreamReader(responseBody);
-            Collection<GameData> response = new Gson().fromJson(reader, Collection.class);//POSSIBLY AN ERROR
+            Object response = new Gson().fromJson(reader, Object.class);//POSSIBLY AN ERROR
+            connection.disconnect();
             return response;
         }
         else { //handle input
@@ -109,10 +112,13 @@ public class ServerFacade {
     public GameData createGame(String gameName, String authToken) throws IOException, ResponseException {
         HttpURLConnection connection = prepConnection("POST", "/game");
 
+        connection.setRequestProperty("Authorization", authToken);
         try(OutputStream requestBody = connection.getOutputStream()) { //handle output
-            connection.setRequestProperty("Authorization", authToken);
             String reqData = new Gson().toJson(gameName);
             requestBody.write(reqData.getBytes());
+        }
+        catch (Exception ioException) {
+            System.out.print("eEe" + ioException.getMessage());
         }
 
         if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) { //handle input
@@ -122,9 +128,9 @@ public class ServerFacade {
             return response;
         }
         else { // SERVER RETURNED AN HTTP ERROR
-            InputStream responseBody = connection.getErrorStream();
+            InputStream responseBody = connection.getInputStream();
             InputStreamReader reader = new InputStreamReader(responseBody);
-            String error = reader.toString();
+            String error = new Gson().fromJson(reader, String.class);
             throw new ResponseException(error);
         }
     }
@@ -132,8 +138,8 @@ public class ServerFacade {
     public void joinGame(String playerColor, int gameID, String authToken) throws IOException, ResponseException {
         HttpURLConnection connection = prepConnection("PUT", "/game");
 
+        connection.setRequestProperty("Authorization", authToken);
         try(OutputStream requestBody = connection.getOutputStream()) { //handle output
-            connection.setRequestProperty("Authorization", authToken);
             String reqData = new Gson().toJson(new JoinRequest(playerColor, gameID));
             requestBody.write(reqData.getBytes());
         }
@@ -166,7 +172,7 @@ public class ServerFacade {
         }
     }
 
-    private HttpURLConnection prepConnection(String method, String path) throws IOException{
+    private HttpURLConnection prepConnection(String method, String path) throws IOException {
         URL url = new URL(serverUrl + path);
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -175,5 +181,15 @@ public class ServerFacade {
         connection.setRequestMethod(method);
         connection.setDoOutput(true);
         return connection;
-    }
+    } //
+//    private HttpURLConnection prepConnection(String method, String path, String authToken) throws IOException {
+//        URL url = new URL(serverUrl + path);
+//
+//        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+//        connection.setRequestProperty("Authorization", authToken);
+//        connection.setReadTimeout(5000);
+//        connection.setRequestMethod(method);
+//        connection.setDoOutput(true);
+//        return connection;
+//    }
 }
