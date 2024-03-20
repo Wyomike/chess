@@ -255,7 +255,7 @@ public class ServerFacadeTests {
     @DisplayName("Clear empty")
     public void emptyClearTest() throws Exception {
         clearService.clear();
-
+        //Doing this for testing reasons
         Assertions.assertNull(userDAO.getUser(testUser.username()));
         Assertions.assertNull(userDAO.getUser(newTestUser.username()));
         Assertions.assertNull(gameDAO.getGame(1));
