@@ -81,9 +81,6 @@ public class Menu {//This is client? maybe I should refactor it to that.
         }
     }
     private void listGames() {
-        //out.println("Please enter an auth token.");
-        //String authToken = scanner.next();
-        //scanner.nextLine();
         try {
             out.println(facade.listGames(authToken));
             loggedIn();
@@ -115,9 +112,9 @@ public class Menu {//This is client? maybe I should refactor it to that.
         String password = scanner.next();
         scanner.nextLine();
         try {
-            out.print("Your auth token: ");
+            //out.print("Your auth token: ");
             authToken = facade.login(username, password).authToken();
-            out.println(authToken);
+            //out.println(authToken);
             loggedIn();
         }
         catch (IOException | ResponseException exception) {
