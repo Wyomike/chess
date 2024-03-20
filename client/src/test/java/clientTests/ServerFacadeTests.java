@@ -19,6 +19,7 @@ public class ServerFacadeTests {
 
     private static Server server;
     private static ServerFacade facade;
+    int port = -1;
 
     private static AuthDAO authDAO = new SQLAuthDAO();
     private static UserDAO userDAO = new SQLUserDAO();
@@ -36,7 +37,7 @@ public class ServerFacadeTests {
     @BeforeEach
     public void init() {
         server = new Server();
-        int port = server.run(0);
+        port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
         facade = new ServerFacade(port);
 
@@ -100,7 +101,9 @@ public class ServerFacadeTests {
             Assertions.assertNotNull(result.authToken());
         }
         catch(IOException responseException) {
-            Assertions.assertEquals("Server returned HTTP response code: 403 for URL: http://localhost:8080/user", responseException.getMessage());
+            String stringport = String.valueOf(port);
+            String expected = "Server returned HTTP response code: 403 for URL: http://localhost:" + stringport + "/user";
+            Assertions.assertEquals(expected, responseException.getMessage());
         }
     }
 
@@ -124,7 +127,9 @@ public class ServerFacadeTests {
             facade.login(loginRequest.username(), loginRequest.password());
         }
         catch (IOException responseException) {
-            Assertions.assertEquals("Server returned HTTP response code: 401 for URL: http://localhost:8080/session", responseException.getMessage());
+            String stringport = String.valueOf(port);
+            String expected = "Server returned HTTP response code: 401 for URL: http://localhost:" + stringport + "/session";
+            Assertions.assertEquals(expected, responseException.getMessage());
         }
     }
 
@@ -150,7 +155,9 @@ public class ServerFacadeTests {
             Assertions.assertNull(authDAO.getAuth(authToken));
         }
         catch (IOException responseException) {
-            Assertions.assertEquals("Server returned HTTP response code: 401 for URL: http://localhost:8080/session", responseException.getMessage());
+            String stringport = String.valueOf(port);
+            String expected = "Server returned HTTP response code: 401 for URL: http://localhost:" + stringport + "/session";
+            Assertions.assertEquals(expected, responseException.getMessage());
         }
     }
 
@@ -179,8 +186,10 @@ public class ServerFacadeTests {
             Assertions.assertEquals(newTestUser.username(), gameDAO.getGame(id).blackUsername());
             Assertions.assertEquals(2, id);
         }
-        catch (IOException accessException) {
-            Assertions.assertEquals("Server returned HTTP response code: 401 for URL: http://localhost:8080/game", accessException.getMessage());
+        catch (IOException responseException) {
+            String stringport = String.valueOf(port);
+            String expected = "Server returned HTTP response code: 401 for URL: http://localhost:" + stringport + "/game";
+            Assertions.assertEquals(expected, responseException.getMessage());
         }
     }
 
@@ -212,7 +221,9 @@ public class ServerFacadeTests {
             Assertions.assertEquals(newTestUser.username(), gameDAO.getGame(id).blackUsername());
         }
         catch (IOException accessException) {
-            Assertions.assertEquals("Server returned HTTP response code: 400 for URL: http://localhost:8080/game", accessException.getMessage());
+            String stringport = String.valueOf(port);
+            String expected = "Server returned HTTP response code: 400 for URL: http://localhost:" + stringport + "/game";
+            Assertions.assertEquals(expected, accessException.getMessage());
         }
     }
 
@@ -246,7 +257,9 @@ public class ServerFacadeTests {
             facade.listGames("whop whop");
         }
         catch (IOException accessException) {
-            Assertions.assertEquals("Server returned HTTP response code: 401 for URL: http://localhost:8080/game", accessException.getMessage());
+            String stringport = String.valueOf(port);
+            String expected = "Server returned HTTP response code: 401 for URL: http://localhost:" + stringport + "/game";
+            Assertions.assertEquals(expected, accessException.getMessage());
         }
     }
 
