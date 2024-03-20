@@ -14,7 +14,7 @@ public class Main {
         //ChessBoardDraw draw = new ChessBoardDraw(chess);
         //draw.drawBoth();
         //menu.run();
-        ServerFacade facade = new ServerFacade("http://localhost:8080");
+        ServerFacade facade = new ServerFacade(8080);
         try {
             facade.clear();
             facade.register("1","1","1");
