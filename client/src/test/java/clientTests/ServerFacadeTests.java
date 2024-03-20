@@ -36,9 +36,9 @@ public class ServerFacadeTests {
     @BeforeEach
     public void init() {
         server = new Server();
-        var port = server.run(8080);
+        int port = server.run(8080);
         System.out.println("Started test HTTP server on " + port);
-        facade = new ServerFacade(8080);
+        facade = new ServerFacade(port);
 
         authDAO = new SQLAuthDAO();
         userDAO = new SQLUserDAO();

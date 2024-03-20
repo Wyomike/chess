@@ -11,6 +11,8 @@ public class Server {
     private UserDAO userDAO = new SQLUserDAO();
     private GameDAO gameDAO = new SQLGameDAO();
 
+    int port = -1;
+
     private final ClearHandler clearHandler = new ClearHandler(authDAO, userDAO, gameDAO);
     private final GameHandler gameHandler = new GameHandler(authDAO, gameDAO);
     private final UserHandler userHandler = new UserHandler(authDAO, userDAO);
@@ -20,6 +22,7 @@ public class Server {
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
+        port = desiredPort;
 
         Spark.staticFiles.location("web");
 
@@ -29,7 +32,6 @@ public class Server {
         catch (DataAccessException accessException) {
             System.out.println(accessException.getMessage());
         }
-          // dbm = new DatabaseManager();
 
 
         Spark.delete("/db", this::clear);
@@ -77,5 +79,9 @@ public class Server {
     public void stop() {
         Spark.stop();
         Spark.awaitStop();
+    }
+
+    public int port() {
+        return port;
     }
 }
