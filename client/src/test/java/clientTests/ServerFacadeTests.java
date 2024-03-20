@@ -250,4 +250,15 @@ public class ServerFacadeTests {
         }
     }
 
+    @Test
+    @Order(14)
+    @DisplayName("Clear empty")
+    public void emptyClearTest() throws Exception {
+        clearService.clear();
+
+        Assertions.assertNull(userDAO.getUser(testUser.username()));
+        Assertions.assertNull(userDAO.getUser(newTestUser.username()));
+        Assertions.assertNull(gameDAO.getGame(1));
+    }
+
 }
