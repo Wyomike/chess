@@ -36,7 +36,7 @@ public class ServerFacadeTests {
     @BeforeEach
     public void init() {
         server = new Server();
-        int port = server.run(8080);
+        int port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
         facade = new ServerFacade(port);
 
