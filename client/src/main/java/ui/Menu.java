@@ -1,7 +1,10 @@
 package ui;
 
+import Server.ResponseException;
+import Server.ServerFacade;
 import chess.ChessBoard;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
@@ -10,9 +13,13 @@ public class Menu {//This is client? maybe I should refactor it to that.
     private PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
     private Scanner scanner = new Scanner(System.in);
     private ChessBoardDraw boardDraw;
+    private ServerFacade facade;
 
-    public Menu(ChessBoard chess) {
+    String authToken = null;
+
+    public Menu(ChessBoard chess, int url) {
         boardDraw = new ChessBoardDraw(chess);
+        facade = new ServerFacade(url);
     }
 
     public void run() {
@@ -25,15 +32,15 @@ public class Menu {//This is client? maybe I should refactor it to that.
         out.print("3.\tQuit\n");
         out.print("4.\tHelp\n");
         String line = scanner.nextLine();
-        if (line.equals("1") || line.equals("2")) {
-            loggedIn();
-        }
-        else if (line.equals("4")) {
-            initial();
-        }
-        else {
-            out.print(line);
-            out.print("NO");
+        switch (line) {
+            case "1" -> register();
+            case "2" -> login();
+            case "3" -> out.print("Done");
+            case "4" -> initial();
+            default -> {
+                out.print("Please enter a valid number from 1 to 4");
+                initial();
+            }
         }
     }
     private void loggedIn() {
@@ -45,20 +52,86 @@ public class Menu {//This is client? maybe I should refactor it to that.
         out.print("6.\tQuit\n");
         out.print("7.\tHelp\n");
         String line = scanner.nextLine();
-        if (line.equals("5")) {
-            initial();
+        switch (line) {
+            case "1" -> createGame();
+            case "2" -> listGames();
+            case "3" -> boardDraw.drawBoth();
+            case "4" -> boardDraw.drawBoard();
+            case "5" -> logout();
+            case "6" -> out.print("Done");
+            case "7" -> loggedIn();
+            default -> {
+                out.println("Please enter a number from 1 to 7");
+                loggedIn();
+            }
         }
-        else if (line.equals("6")) {
-            out.print("Done");
-        }
-        else if (line.equals("7")) {
+    }
+
+    private void createGame() {
+        out.println("Please enter a name for the game.");
+        String gameName = scanner.next();
+        //String authToken = scanner.next();
+        scanner.nextLine();
+        try {
+            facade.createGame(gameName, authToken);
             loggedIn();
         }
-        else if (line.equals("3")) {
-            boardDraw.drawBoth();
+        catch (IOException | ResponseException exception) {
+            out.println("err");
         }
-        else {
-            out.print("Heyo");
+    }
+    private void listGames() {
+        //out.println("Please enter an auth token.");
+        //String authToken = scanner.next();
+        //scanner.nextLine();
+        try {
+            out.println(facade.listGames(authToken));
+            loggedIn();
+        }
+        catch (IOException | ResponseException exception) {
+            out.println("err");
+        }
+    }
+
+    private void register() {
+        out.println("Please enter a username, password, and email separated by spaces");
+        String username = scanner.next();
+        String password = scanner.next();
+        String email = scanner.next();
+        scanner.nextLine();
+        try {
+            //out.print("Your auth token: ");
+            authToken = facade.register(username, password, email).authToken();
+            //out.println(authToken);
+            loggedIn();
+        }
+        catch (IOException | ResponseException exception) {
+            out.println("err");
+        }
+    }
+    private void login() {
+        out.println("Please enter a valid username and password separated by spaces");
+        String username = scanner.next();
+        String password = scanner.next();
+        scanner.nextLine();
+        try {
+            out.print("Your auth token: ");
+            authToken = facade.login(username, password).authToken();
+            out.println(authToken);
+            loggedIn();
+        }
+        catch (IOException | ResponseException exception) {
+            out.println("err");
+        }
+    }
+    private void logout() {
+        try {
+            facade.logout(authToken);
+            authToken = null;
+            initial();
+        }
+        catch (IOException | ResponseException exception) {
+            out.println("err");
         }
     }
 }

@@ -33,8 +33,8 @@ public class ServerFacadeTests {
     private UserData newTestUser = new UserData("1", "2", "3");
 
 
-    @BeforeAll
-    public static void init() {
+    @BeforeEach
+    public void init() {
         server = new Server();
         var port = server.run(8080);
         System.out.println("Started test HTTP server on " + port);
@@ -56,8 +56,8 @@ public class ServerFacadeTests {
         }
     }
 
-    @AfterAll
-    static void stopServer() {
+    @AfterEach
+    void stopServer() {
         server.stop();
     }
 
@@ -99,8 +99,8 @@ public class ServerFacadeTests {
             Assertions.assertEquals(result.username(), testUser.username());
             Assertions.assertNotNull(result.authToken());
         }
-        catch(ResponseException responseException) {
-            Assertions.assertEquals("Error: already taken", responseException.getMessage());
+        catch(IOException responseException) {
+            Assertions.assertEquals("Server returned HTTP response code: 403 for URL: http://localhost:8080/user", responseException.getMessage());
         }
     }
 
@@ -180,7 +180,73 @@ public class ServerFacadeTests {
             Assertions.assertEquals(2, id);
         }
         catch (IOException accessException) {
-            Assertions.assertEquals("Error: unauthorized", accessException.getMessage());
+            Assertions.assertEquals("Server returned HTTP response code: 401 for URL: http://localhost:8080/game", accessException.getMessage());
+        }
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("Join game")
+    public void joinGame() throws Exception {
+        AuthData auth1 = facade.register(testUser.username(), testUser.password(), testUser.email());
+        AuthData auth2 = facade.register(newTestUser.username(), newTestUser.password(), newTestUser.email());
+        int id = facade.createGame("game", auth1.authToken()).gameID();
+        facade.joinGame("WHITE", id, auth1.authToken());
+        facade.joinGame("BLACK", id, auth2.authToken());
+        Assertions.assertEquals(1, id);
+        Assertions.assertEquals(testUser.username(), gameDAO.getGame(id).whiteUsername());
+        Assertions.assertEquals(newTestUser.username(), gameDAO.getGame(id).blackUsername());
+    }
+    @Test
+    @Order(11)
+    @DisplayName("Join bad game")
+    public void badJoinGame() throws Exception {
+        try {
+            AuthData auth1 = facade.register(testUser.username(), testUser.password(), testUser.email());
+            AuthData auth2 = facade.register(newTestUser.username(), newTestUser.password(), newTestUser.email());
+            int id = facade.createGame("game", auth1.authToken()).gameID();
+            facade.joinGame("WHITE", 4, auth1.authToken());
+            facade.joinGame("BLACK", id, auth2.authToken());
+            Assertions.assertEquals(2, id);
+            Assertions.assertEquals(testUser.username(), gameDAO.getGame(id).whiteUsername());
+            Assertions.assertEquals(newTestUser.username(), gameDAO.getGame(id).blackUsername());
+        }
+        catch (IOException accessException) {
+            Assertions.assertEquals("Server returned HTTP response code: 400 for URL: http://localhost:8080/game", accessException.getMessage());
+        }
+    }
+
+    @Test
+    @Order(12)
+    @DisplayName("List games")
+    public void listGame() throws Exception {
+        AuthData auth1 = facade.register(testUser.username(), testUser.password(), testUser.email());
+        AuthData auth2 = facade.register(newTestUser.username(), newTestUser.password(), newTestUser.email());
+        int id = facade.createGame("game", auth1.authToken()).gameID();
+        facade.joinGame("WHITE", id, auth1.authToken());
+        facade.joinGame("BLACK", id, auth2.authToken());
+        Assertions.assertEquals(1, id);
+        Assertions.assertEquals(testUser.username(), gameDAO.getGame(id).whiteUsername());
+        Assertions.assertEquals(newTestUser.username(), gameDAO.getGame(id).blackUsername());
+        facade.listGames(auth1.authToken());
+    }
+    @Test
+    @Order(13)
+    @DisplayName("List games with bad auth")
+    public void badListGame() throws Exception {
+        try {
+            AuthData auth1 = facade.register(testUser.username(), testUser.password(), testUser.email());
+            AuthData auth2 = facade.register(newTestUser.username(), newTestUser.password(), newTestUser.email());
+            int id = facade.createGame("game", auth1.authToken()).gameID();
+            facade.joinGame("WHITE", id, auth1.authToken());
+            facade.joinGame("BLACK", id, auth2.authToken());
+            Assertions.assertEquals(1, id);
+            Assertions.assertEquals(testUser.username(), gameDAO.getGame(id).whiteUsername());
+            Assertions.assertEquals(newTestUser.username(), gameDAO.getGame(id).blackUsername());
+            facade.listGames("whop whop");
+        }
+        catch (IOException accessException) {
+            Assertions.assertEquals("Server returned HTTP response code: 401 for URL: http://localhost:8080/game", accessException.getMessage());
         }
     }
 

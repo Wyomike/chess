@@ -29,11 +29,6 @@ public class HttpHandler {
         }
 
         if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-            // Get HTTP response headers, if necessary
-            // Map<String, List<String>> headers = connection.getHeaderFields();
-            // OR
-            //connection.getHeaderField("Content-Length");
-
             InputStream responseBody = connection.getInputStream();
             InputStreamReader reader = new InputStreamReader(responseBody);
             AuthData response = new Gson().fromJson(reader, AuthData.class);
@@ -50,8 +45,6 @@ public class HttpHandler {
     }
 
     public AuthData login(LoginRequest login) throws IOException, ResponseException {
-        //LoginRequest login = new LoginRequest(username, password);
-
         HttpURLConnection connection = prepConnection("POST", "/session");
 
         try(OutputStream requestBody = connection.getOutputStream()) { //handle output
@@ -77,16 +70,7 @@ public class HttpHandler {
         HttpURLConnection connection = prepConnection("DELETE", "/session");
         connection.setRequestProperty("Authorization", authToken);
 
-        try(OutputStream requestBody = connection.getOutputStream()) { //handle output
-        }
-
-        if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) { //handle input
-            InputStream responseBody = connection.getInputStream();
-            InputStreamReader reader = new InputStreamReader(responseBody);
-            AuthData response = new Gson().fromJson(reader, AuthData.class);
-            //return response;
-        }
-        else { //handle input
+        if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) { //handle input
             InputStream responseBody = connection.getInputStream();
             InputStreamReader reader = new InputStreamReader(responseBody);
             String error = reader.toString();
@@ -106,7 +90,6 @@ public class HttpHandler {
             return response;
         }
         else { //handle input
-            connection.setRequestProperty("Authorization", authToken);
             InputStream responseBody = connection.getInputStream();
             InputStreamReader reader = new InputStreamReader(responseBody);
             String error = reader.toString();
@@ -149,13 +132,7 @@ public class HttpHandler {
             requestBody.write(reqData.getBytes());
         }
 
-        if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) { //handle input
-//            InputStream responseBody = connection.getInputStream();
-//            InputStreamReader reader = new InputStreamReader(responseBody);
-//            GameData response = new Gson().fromJson(reader, GameData.class);
-//            return response;
-        }
-        else { // SERVER RETURNED AN HTTP ERROR
+        if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) { // SERVER RETURNED AN HTTP ERROR
             InputStream responseBody = connection.getInputStream();
             InputStreamReader reader = new InputStreamReader(responseBody);
             String error = reader.toString();
@@ -165,9 +142,6 @@ public class HttpHandler {
 
     public void clear() throws IOException, ResponseException {
         HttpURLConnection connection = prepConnection("DELETE", "/db");
-
-//        try(OutputStream requestBody = connection.getOutputStream()) { //handle output
-//        }
 
         if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) { //handle input
             InputStream responseBody = connection.getErrorStream();
