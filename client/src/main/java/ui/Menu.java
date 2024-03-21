@@ -205,7 +205,7 @@ public class Menu {//This is client? maybe I should refactor it to that.
                 out.println("Invalid color");
                 loggedIn();
             }
-            if (gameID < 0 || gameID > games.size()) {
+            if (gameID < 0 || gameID > games.size() - 1) {
                 out.println("Invalid index");
                 loggedIn();
             }
@@ -239,11 +239,11 @@ public class Menu {//This is client? maybe I should refactor it to that.
             out.print("Enter the number of the game you'd like to watch\n");
             int gameID = Integer.parseInt(scanner.next());
             scanner.nextLine();
-            if (gameID < 0 || gameID > games.size()) {
+            if (gameID < 0 || gameID > games.size() - 1) {
                 out.println("Invalid index");
                 loggedIn();
             }
-            out.print("Game exists, if TA asks tell them slack says we only draw an example board at this point");
+            out.print("Game exists\n");//, if TA asks tell them slack says we only draw an example board at this point");
             boardDraw.drawBoth();
             loggedIn();
         }
