@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class ServerFacade {
@@ -33,8 +34,9 @@ public class ServerFacade {
         httpHandler.logout(authToken);
     }
 
-    public Object listGames(String authToken) throws ResponseException, IOException {
-        return httpHandler.listGames(authToken);
+    public ArrayList<GameData> listGames(String authToken) throws ResponseException, IOException {
+         ArrayList<GameData> games = httpHandler.listGames(authToken);
+        return games;
     }
 
     public GameData createGame(String gameName, String authToken) throws ResponseException, IOException {

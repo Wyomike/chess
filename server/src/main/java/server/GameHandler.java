@@ -7,6 +7,8 @@ import service.GameService;
 import spark.Request;
 import spark.Response;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 public class GameHandler {
@@ -23,7 +25,8 @@ public class GameHandler {
             res.type("application/json");
             var list = service.listGames(authToken).toArray();
             res.status(200);
-            return new Gson().toJson(Map.of("games", list));
+            return new Gson().toJson(list);
+            //return new Gson().toJson(Map.of("games", list));
         }
         catch (DataAccessException accessException) {
             res.status(401);

@@ -1,14 +1,18 @@
 package Server;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import model.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class HttpHandler {
     String serverUrl;
@@ -78,14 +82,16 @@ public class HttpHandler {
         }
     }
 
-    public Object listGames(String authToken) throws IOException, ResponseException {
+    public ArrayList<GameData> listGames(String authToken) throws IOException, ResponseException {
         HttpURLConnection connection = prepConnection("GET", "/game");
         connection.setRequestProperty("Authorization", authToken);
 
         if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) { //handle input
             InputStream responseBody = connection.getInputStream();
             InputStreamReader reader = new InputStreamReader(responseBody);
-            Object response = new Gson().fromJson(reader, Object.class);//POSSIBLY AN ERROR
+            Type listType = new TypeToken<ArrayList<GameData>>(){}.getType();
+            ArrayList<GameData> response = new Gson().fromJson(reader, listType);
+            //Object response = new Gson().fromJson(reader, Object.class);//POSSIBLY AN ERROR
             connection.disconnect();
             return response;
         }

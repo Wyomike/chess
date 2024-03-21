@@ -21,6 +21,7 @@ public class ChessBoardDraw {
         setBlack();
         out.println();
         drawBoardReversed();
+        out.print(SET_BG_COLOR_WHITE);
     }
     public void drawBoard() {
         drawHeader(false);
