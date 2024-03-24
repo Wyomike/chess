@@ -2,7 +2,7 @@ package ui;
 
 import Server.ResponseException;
 import Server.ServerFacade;
-import chess.ChessBoard;
+import chess.*;
 import model.GameData;
 
 import java.io.IOException;
@@ -22,6 +22,7 @@ public class Menu {//This is client? maybe I should refactor it to that.
     private Scanner scanner = new Scanner(System.in);
     private ChessBoardDraw boardDraw;
     private ServerFacade facade;
+    private ChessGame game;
     ArrayList<GameData> games = null;
 
     String authToken = null;
@@ -210,6 +211,7 @@ public class Menu {//This is client? maybe I should refactor it to that.
                 loggedIn();
             }
             facade.joinGame(color, games.get(gameID).gameID(), authToken);
+            game = games.get(gameID).game(); //When join game, set menu's game to that game
             boardDraw.drawBoth();
             loggedIn();
         }
@@ -245,10 +247,43 @@ public class Menu {//This is client? maybe I should refactor it to that.
             }
             out.print("Game exists\n");//, if TA asks tell them slack says we only draw an example board at this point");
             boardDraw.drawBoth();
+            game = games.get(gameID).game(); //When watch game, set menu's game to that game
             loggedIn();
         }
         catch (IOException | ResponseException exception) {
             out.println("err");
         }
+    }
+
+    private void highlightMoves() {
+        String[] chessLetters = new String[]{"a","b","c","d","e","f","g","h"};
+        //TODO - enter helpful text, check entries
+        String colLetter = scanner.next();
+        int row = Integer.parseInt(scanner.next());
+        int col = -1;
+        for (int i = 0; i < 8; ++i) {
+            if (colLetter.equals(chessLetters[i])) col = i;
+        }
+        //if col = -1 return error
+        scanner.nextLine();
+        ChessPosition pos = new ChessPosition(row, col);
+        boardDraw.highlightMoves(parseMoves(game.validMoves(pos)));
+    }
+
+    private boolean[][] parseMoves(Collection<ChessMove> moves) {
+        boolean[][] validSpaces = new boolean[8][8];
+
+        Iterator<ChessMove> moveIter = moves.iterator();
+        ArrayList<int[]> movePositions = new ArrayList<int[]>();
+        while (moveIter.hasNext()) {
+            ChessMove move = moveIter.next();
+            movePositions.add(new int[] {move.getStartPosition().getRow(), move.getStartPosition().getColumn()});
+        }
+        for (int i = 0; i < movePositions.size(); ++i) {
+            int x = movePositions.get(i)[0];
+            int y = movePositions.get(i)[1];
+            validSpaces[x][y] = true;
+        }
+        return validSpaces;
     }
 }

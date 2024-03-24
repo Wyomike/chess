@@ -2,10 +2,12 @@ package ui;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.ChessPiece;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 
 import static ui.EscapeSequences.*;
 
@@ -49,6 +51,10 @@ public class ChessBoardDraw {
             out.print("\n");
         }
         drawHeader(true);
+    }
+
+    public void highlightMoves(boolean[][] validSpaces) {
+        //TODO - implement highlight moves
     }
 
     private void drawSquare(int i, int j) {

@@ -60,7 +60,6 @@ public class ChessGame {
             if (isValidMove(move, board.getPiece(startPosition).getTeamColor())) validMoveList.add(move);
         }
         return validMoveList;
-        //return piece.pieceMoves(board, startPosition);
     }
     private ArrayList<ChessMove> validTeamMoves(TeamColor color) {
         ArrayList<ChessMove> teamMoves = new ArrayList<>();
