@@ -236,6 +236,8 @@ public class Menu {//This is client? maybe I should refactor it to that.
                 out.print(game.whiteUsername());
                 out.print("   Black - ");
                 out.print(game.blackUsername());
+                out.print("   Turn - ");
+                out.print(game.game().getTeamTurn());
                 out.print("\n");
             }
             out.print("Enter the number of the game you'd like to watch\n");
@@ -246,8 +248,11 @@ public class Menu {//This is client? maybe I should refactor it to that.
                 loggedIn();
             }
             out.print("Game exists\n");//, if TA asks tell them slack says we only draw an example board at this point");
-            boardDraw.drawBoth();
+
             game = games.get(gameID).game(); //When watch game, set menu's game to that game
+            boardDraw.drawBoard();
+
+            highlightMoves();
             loggedIn();
         }
         catch (IOException | ResponseException exception) {
@@ -257,17 +262,18 @@ public class Menu {//This is client? maybe I should refactor it to that.
 
     private void highlightMoves() {
         String[] chessLetters = new String[]{"a","b","c","d","e","f","g","h"};
+        out.println("Enter a coordinate with a letter a-h then a number 1-8, separated by a space. (i.e a 1, or h 4)");
         //TODO - enter helpful text, check entries
         String colLetter = scanner.next();
         int row = Integer.parseInt(scanner.next());
         int col = -1;
         for (int i = 0; i < 8; ++i) {
-            if (colLetter.equals(chessLetters[i])) col = i;
+            if (colLetter.equals(chessLetters[i])) col = i + 1;
         }
         //if col = -1 return error
         scanner.nextLine();
         ChessPosition pos = new ChessPosition(row, col);
-        boardDraw.highlightMoves(parseMoves(game.validMoves(pos)));
+        boardDraw.highlightMoves(parseMoves(game.validMoves(pos)), row, col);
     }
 
     private boolean[][] parseMoves(Collection<ChessMove> moves) {
@@ -277,12 +283,14 @@ public class Menu {//This is client? maybe I should refactor it to that.
         ArrayList<int[]> movePositions = new ArrayList<int[]>();
         while (moveIter.hasNext()) {
             ChessMove move = moveIter.next();
-            movePositions.add(new int[] {move.getStartPosition().getRow(), move.getStartPosition().getColumn()});
+            movePositions.add(new int[] {move.getEndPosition().getRow(), move.getEndPosition().getColumn()});
         }
         for (int i = 0; i < movePositions.size(); ++i) {
             int x = movePositions.get(i)[0];
             int y = movePositions.get(i)[1];
-            validSpaces[x][y] = true;
+            if (x > -1 && x < 8 && y > -1 && y < 8) {
+                validSpaces[x - 1][y - 1] = true;
+            }
         }
         return validSpaces;
     }

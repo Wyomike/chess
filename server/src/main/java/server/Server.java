@@ -41,6 +41,7 @@ public class Server {
         Spark.get("/game", this::listGames);
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
+        //Spark.webSocket("/connect", this::connect);
         // Register your endpoints and handle exceptions here.
 
         Spark.awaitInitialization();

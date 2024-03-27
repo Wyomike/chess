@@ -12,11 +12,11 @@ import java.util.Iterator;
  */
 public class ChessGame {
 
-    ChessBoard board;
+    ChessBoard board = new ChessBoard();
     TeamColor turn = TeamColor.WHITE;
 
     public ChessGame() {
-
+        board.resetBoard();
     }
 
     /**

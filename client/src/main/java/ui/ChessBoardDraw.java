@@ -37,6 +37,7 @@ public class ChessBoardDraw {
             out.print("\n");
         }
         drawHeader(false);
+        out.print(SET_BG_COLOR_WHITE);
     }
 
     public void drawBoardReversed() {
@@ -53,14 +54,47 @@ public class ChessBoardDraw {
         drawHeader(true);
     }
 
-    public void highlightMoves(boolean[][] validSpaces) {
-        //TODO - implement highlight moves
+    public void highlightMoves(boolean[][] validSpaces, int row, int col) {
+        drawHeader(false);
+        for (int i = 0; i < 8; ++i) {
+            edgeNumber(i, false);
+            for (int j = 0; j < 8; ++j) {
+                if (validSpaces[i][j]) {
+                    highlightSquare(i,j);
+                }
+                else if (i == row - 1 && j == col -1) {
+                    drawYellow(i,j);
+                }
+                else {
+                    drawSquare(i,j);
+                }
+            }
+            edgeNumber(i, false);
+            setBlack();
+            out.print("\n");
+        }
+        drawHeader(false);
+        out.print(SET_BG_COLOR_WHITE);
     }
 
     private void drawSquare(int i, int j) {
         ChessPiece piece = board[i][j];
         if ((i + j) % 2 == 0) setWhite();
         else setBlack();
+        fillSquare(piece);
+    }
+    private void highlightSquare(int i, int j) {
+        ChessPiece piece = board[i][j];
+        if ((i + j) % 2 == 0) setLightGreen();
+        else setGreen();
+        fillSquare(piece);
+    }
+    private void drawYellow(int i, int j) {
+        ChessPiece piece = board[i][j];
+        setYellow();
+        fillSquare(piece);
+    }
+    private void fillSquare(ChessPiece piece) {
         out.print(" ");
         if (piece != null) {
             if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) out.print(SET_TEXT_COLOR_LIGHT_GREY);
@@ -68,8 +102,9 @@ public class ChessBoardDraw {
             out.print(piece.toString());
         }
         else out.print("  ");
-        out.print(" ");//break this out into a printSquare(i,j) function
+        out.print(" ");
     }
+
     private void drawHeader(boolean reversed) {
         if (!reversed) {
             setLightGray();
@@ -111,5 +146,18 @@ public class ChessBoardDraw {
         out.print(SET_BG_COLOR_LIGHT_GREY);
         out.print(SET_TEXT_COLOR_BLACK);
     }
+    private void setLightGreen() {
+        out.print(SET_BG_COLOR_GREEN);
+        out.print(SET_TEXT_COLOR_BLACK);
+    }
+    private void setGreen() {
+        out.print(SET_BG_COLOR_DARK_GREEN);
+        out.print(SET_TEXT_COLOR_BLACK);
+    }
+    private void setYellow() {
+        out.print(SET_BG_COLOR_YELLOW);
+        out.print(SET_TEXT_COLOR_BLACK);
+    }
+
 
 }
