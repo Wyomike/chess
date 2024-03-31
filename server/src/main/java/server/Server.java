@@ -1,6 +1,7 @@
 package server;
 
 import dataAccess.*;
+import server.websocket.WebsocketCommunicator;
 import spark.*;
 
 import static dataAccess.DatabaseManager.*;
@@ -17,7 +18,10 @@ public class Server {
     private final GameHandler gameHandler = new GameHandler(authDAO, gameDAO);
     private final UserHandler userHandler = new UserHandler(authDAO, userDAO);
 
+    WebsocketCommunicator websocketCommunicator; // = new webSocketCommunicator();
+
     public Server() {
+        websocketCommunicator = new WebsocketCommunicator();
     }
 
     public int run(int desiredPort) {

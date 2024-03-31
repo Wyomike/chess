@@ -2,6 +2,7 @@ package ui;
 
 import Server.ResponseException;
 import Server.ServerFacade;
+import Server.WebsocketCommunicator;
 import chess.*;
 import model.GameData;
 
@@ -33,6 +34,9 @@ public class Menu {//This is client? maybe I should refactor it to that.
     }
 
     public void run() {
+        //this websocket new up should go to join and observe eventually
+//        new WebsocketCommunicator().run();
+        //
         initial();
     }
 
