@@ -9,18 +9,15 @@ import java.util.Objects;
  * methods.
  */
 public class Notification extends ServerMessage {
-    ServerMessageType serverMessageType;
-    private String message;
+    //ServerMessageType serverMessageType;
+    private final String message;
 
-    public Notification(ServerMessageType type, String message) {
-        super(type);
-        this.serverMessageType = type;
+    public Notification(String message) {
+        super(ServerMessageType.NOTIFICATION);
+        //this.serverMessageType = ServerMessageType.NOTIFICATION;
         this.message = message;
     }
 
-    public ServerMessageType getServerMessageType() {
-        return this.serverMessageType;
-    }
     public String getMessage() {
         return message;
     }

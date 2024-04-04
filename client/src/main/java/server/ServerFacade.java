@@ -1,14 +1,11 @@
-package Server;
+package server;
 
-import com.google.gson.Gson;
 import model.*;
 
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 
 public class ServerFacade {
     private final String serverUrl;

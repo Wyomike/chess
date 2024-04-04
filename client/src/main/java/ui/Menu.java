@@ -1,8 +1,8 @@
 package ui;
 
-import Server.ResponseException;
-import Server.ServerFacade;
-import Server.WebsocketCommunicator;
+import server.ResponseException;
+import server.ServerFacade;
+//import Server.WebsocketCommunicator;
 import chess.*;
 import model.GameData;
 
@@ -261,6 +261,31 @@ public class Menu {//This is client? maybe I should refactor it to that.
         }
         catch (IOException | ResponseException exception) {
             out.println("err");
+        }
+    }
+
+    private void inGame() {//maybe give an int parameter for which game.
+        out.println("At any time enter 0 for a help menu");
+        out.println("");
+        out.print("Enter the number of any menu option\n");
+        out.print("1.\tRedraw board\n");
+        out.print("2.\tMake move\n");
+        out.print("3.\tHighlight legal moves\n");
+        out.print("4.\tLeave\n");
+        out.print("5.\tResign\n");
+        out.print("6.\tHelp\n");
+        String line = scanner.nextLine();
+        switch (line) {
+            case "1" -> boardDraw.drawBoard(); //Will have to pass parameter here eventually.
+            //case "2" -> makeMove();
+            case "3" -> highlightMoves();
+            //case "4" -> leave();
+            //case "5" -> resign();
+            //case "6" -> helpGame();
+            default -> {
+                out.println("Please enter a number from 1 to 6");
+                inGame();
+            }
         }
     }
 

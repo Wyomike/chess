@@ -4,21 +4,21 @@ import java.util.Objects;
 
 public class JoinObserver extends UserGameCommand {
 
-    public JoinObserver(String authToken, int gameID) {
-        super(authToken);
-        this.authToken = authToken;
+    public JoinObserver(String username, String authToken, int gameID) {
+        super(username, authToken);
+//        this.authToken = authToken;
         commandType = UserGameCommand.CommandType.JOIN_OBSERVER;
         this.gameID = gameID;
     }
 
-    protected UserGameCommand.CommandType commandType;
+    //protected UserGameCommand.CommandType commandType;
 
-    private final String authToken;
+//    private final String authToken;
     private final int gameID;
 
-    public String getAuthString() {
-        return authToken;
-    }
+//    public String getAuthString() {
+//        return authToken;
+//    }
 
     public UserGameCommand.CommandType getCommandType() {
         return this.commandType;

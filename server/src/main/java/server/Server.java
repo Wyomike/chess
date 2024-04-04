@@ -31,12 +31,13 @@ public class Server {
         Spark.staticFiles.location("web");
 
         try {
-            DatabaseManager.createDatabase();
+            createDatabase();
         }
         catch (DataAccessException accessException) {
             System.out.println(accessException.getMessage());
         }
 
+        Spark.webSocket("/connect", websocketCommunicator);
 
         Spark.delete("/db", this::clear);
         Spark.post("/user", this::register);
@@ -45,7 +46,6 @@ public class Server {
         Spark.get("/game", this::listGames);
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
-        //Spark.webSocket("/connect", this::connect);
         // Register your endpoints and handle exceptions here.
 
         Spark.awaitInitialization();

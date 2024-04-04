@@ -9,19 +9,15 @@ import java.util.Objects;
  * methods.
  */
 public class LoadGame extends ServerMessage {
-    ServerMessageType serverMessageType;
-    private String game;
+    //ServerMessageType serverMessageType;
+    private final int game;
 
-    public LoadGame(ServerMessageType type, String game) {
-        super(type);
-        this.serverMessageType = type;
-        this.game = game;
+    public LoadGame(int gameID) {
+        super(ServerMessageType.LOAD_GAME);
+        this.game = gameID;
     }
 
-    public ServerMessageType getServerMessageType() {
-        return this.serverMessageType;
-    }
-    public String getGame() {
+    public int getGame() {
         return game;
     }
 

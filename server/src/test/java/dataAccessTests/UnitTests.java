@@ -35,6 +35,12 @@ public class UnitTests {
     private static Server server;
     private String existingAuth;
 
+
+    @BeforeAll
+    public static void startServer() {
+        server = new Server();
+        server.run(0);
+    }
     @BeforeEach
     public void init() {
         authDAO = new SQLAuthDAO();

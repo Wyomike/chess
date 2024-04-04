@@ -9,18 +9,14 @@ import java.util.Objects;
  * methods.
  */
 public class Error extends ServerMessage {
-    ServerMessageType serverMessageType;
+    //ServerMessageType serverMessageType;
     private String errorMessage;
 
-    public Error(ServerMessageType type, String errorMessage) {
-        super(type);
-        this.serverMessageType = type;
+    public Error(String errorMessage) {
+        super(ServerMessageType.ERROR);
         this.errorMessage = errorMessage;
     }
 
-    public ServerMessageType getServerMessageType() {
-        return this.serverMessageType;
-    }
     public String getErrorMessage() {
         return errorMessage;
     }

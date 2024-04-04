@@ -1,7 +1,4 @@
-import Server.ServerFacade;
 import chess.*;
-import model.AuthData;
-import ui.ChessBoardDraw;
 import ui.Menu;
 
 

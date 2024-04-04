@@ -5,23 +5,32 @@ import chess.ChessGame;
 import java.util.Objects;
 
 public class JoinPlayer extends UserGameCommand {
-    public JoinPlayer (String authToken, int gameID, ChessGame.TeamColor playerColor) {
-        super(authToken);
-        this.authToken = authToken;
+    public JoinPlayer (String username, String authToken, int gameID, ChessGame.TeamColor playerColor) {
+        super(username, authToken);
         commandType = UserGameCommand.CommandType.JOIN_PLAYER;
         this.gameID = gameID;
         this.playerColor = playerColor;
     }
+    public JoinPlayer (JoinPlayer old) {
+        super(old.getUsername(), old.getAuthString());
+        this.commandType = CommandType.JOIN_PLAYER;
+        this.gameID = old.getGameID();
+        this.playerColor = old.getPlayerColor();
+    }
 
-    protected UserGameCommand.CommandType commandType;
+    //protected UserGameCommand.CommandType commandType;
 
-    private final String authToken;
+//    private final String username;
+//    private final String authToken;
     private final int gameID;
     private final ChessGame.TeamColor playerColor;
 
-    public String getAuthString() {
-        return authToken;
-    }
+//    public String getUsername() {
+//        return username;
+//    }
+//    public String getAuthString() {
+//        return authToken;
+//    }
 
     public UserGameCommand.CommandType getCommandType() {
         return this.commandType;

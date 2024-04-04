@@ -53,7 +53,7 @@ public class DatabaseManager {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();
             }
-            statement = "CREATE TABLE IF NOT EXISTS gameData(id int AUTO_INCREMENT key, whiteUsername varchar(128), blackUsername varchar(128), gameName varchar(128), game varchar(128))";
+            statement = "CREATE TABLE IF NOT EXISTS gameData(id int AUTO_INCREMENT key, whiteUsername varchar(128), blackUsername varchar(128), gameName varchar(128), game blob)";
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();
             }

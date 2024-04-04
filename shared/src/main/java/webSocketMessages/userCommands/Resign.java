@@ -4,14 +4,14 @@ import java.util.Objects;
 
 public class Resign extends UserGameCommand {
 
-    public Resign(String authToken, int gameID) {
-        super(authToken);
+    public Resign(String username, String authToken, int gameID) {
+        super(username, authToken);
         this.authToken = authToken;
         commandType = UserGameCommand.CommandType.JOIN_PLAYER;
         this.gameID = gameID;
     }
 
-    protected UserGameCommand.CommandType commandType;
+    //protected UserGameCommand.CommandType commandType;
 
     private final String authToken;
     private final int gameID;
