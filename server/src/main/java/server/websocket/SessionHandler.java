@@ -2,6 +2,8 @@ package server.websocket;
 
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
+import webSocketMessages.serverMessages.Error;
+import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.ServerMessage;
 
 import java.io.IOException;
@@ -18,9 +20,27 @@ public class SessionHandler {
         sessions.remove(authToken);
     }
 
+    public void sendError(String authToken, String message) throws IOException {
+        Error error = new Error(message);
+        String toSend = new Gson().toJson(error);
+        sessions.get(authToken).getRemote().sendString(toSend);
+    }
+//    public void sendLoadGame(String authToken, LoadGame loadGame) throws IOException {
+//        String toSend = new Gson().toJson(loadGame);
+//
+//        sessions.get(authToken).getRemote().sendString(toSend);
+//    }
     public void sendMessage(String authToken, ServerMessage message) throws IOException {
         String toSend = new Gson().toJson(message);
         sessions.get(authToken).getRemote().sendString(toSend);
+    }
+    public void sendMessageToAll(String authToken, ServerMessage message) throws IOException {
+        String toSend = new Gson().toJson(message);
+        if (sessions.size() > 1) {
+            for (var c : sessions.entrySet()) {
+                c.getValue().getRemote().sendString(toSend);
+            }
+        }
     }
     public void sendNotification(String excludeVisitorName, ServerMessage message) throws IOException {
         if (sessions.size() > 1) {

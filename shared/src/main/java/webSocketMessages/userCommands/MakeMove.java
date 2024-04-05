@@ -8,7 +8,6 @@ public class MakeMove extends UserGameCommand {
 
     public MakeMove(String username, String authToken, int gameID, ChessMove move) {
         super(username, authToken);
-        this.authToken = authToken;
         commandType = UserGameCommand.CommandType.MAKE_MOVE;
         this.gameID = gameID;
         this.move = move;
@@ -16,13 +15,8 @@ public class MakeMove extends UserGameCommand {
 
     //protected UserGameCommand.CommandType commandType;
 
-    private final String authToken;
     private final int gameID;
     private final ChessMove move;
-
-    public String getAuthString() {
-        return authToken;
-    }
 
     public UserGameCommand.CommandType getCommandType() {
         return this.commandType;
