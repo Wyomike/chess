@@ -74,6 +74,11 @@ public class SQLGameDAO implements GameDAO {
         executeUpdate(statement, white, black, id);
     }
 
+    public void updateGame(int id, ChessGame game) throws DataAccessException {
+        String statement = "UPDATE gameData set game = ?, where id = ?";
+        executeUpdate(statement, game, id);
+    }
+
     public void clear() throws DataAccessException {
         String statement = "TRUNCATE gameData"; //think about using truncate users
         executeUpdate(statement);

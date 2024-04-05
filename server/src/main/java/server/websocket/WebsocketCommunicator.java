@@ -3,6 +3,7 @@ package server.websocket;
 import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
 import dataAccess.SQLAuthDAO;
@@ -252,7 +253,8 @@ public class WebsocketCommunicator {
     private boolean validMove(String authToken, int gameID, ChessMove move) throws DataAccessException {
         String player = new SQLAuthDAO().getAuth(authToken).username();
         if (validGame(gameID)) {
-            GameData gameData = new SQLGameDAO().getGame(gameID);
+            SQLGameDAO gameAccess = new SQLGameDAO();
+            GameData gameData = gameAccess.getGame(gameID);
 
             ChessGame game = gameData.game();
             ChessGame.TeamColor pieceColor = game.getBoard().getPiece(move.getStartPosition()).getTeamColor();
@@ -266,10 +268,21 @@ public class WebsocketCommunicator {
             if (!playerIsMoveOwner(gameData, player, pieceColor)) {
                 return false;
             }
+            if (game.isInStalemate(turnColor) || game.isInCheckmate(turnColor)) {
+                return false;
+            }
+            try {
+                game.makeMove(move);
+                gameAccess.updateGame(gameID, game);
+            }
+            catch (InvalidMoveException invalidMoveException) {
+                throw new DataAccessException(invalidMoveException.getMessage());
+            }
         }
         else {
             return false;
         }
+
         return true;
     }
     private boolean playerIsMoveOwner(GameData game, String player, ChessGame.TeamColor pieceColor) {
