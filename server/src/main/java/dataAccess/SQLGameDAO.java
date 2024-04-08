@@ -18,7 +18,7 @@ import static java.sql.Types.NULL;
 public class SQLGameDAO implements GameDAO {
 
     public GameData addGame (String gameName) throws DataAccessException {
-        if (gameName == "") throw new DataAccessException("Error: no name");
+        if (gameName.isEmpty()) throw new DataAccessException("Error: no name");
         String chessGame = new Gson().toJson(new ChessGame());
         String statement = "INSERT INTO gameData (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
         int id = executeUpdate(statement, null, null, gameName, chessGame);
@@ -75,8 +75,9 @@ public class SQLGameDAO implements GameDAO {
     }
 
     public void updateGame(int id, ChessGame game) throws DataAccessException {
-        String statement = "UPDATE gameData set game = ?, where id = ?";
-        executeUpdate(statement, game, id);
+        String chessGame = new Gson().toJson(game);
+        String statement = "UPDATE gameData SET game = ? where id = ?";
+        executeUpdate(statement, chessGame, id);
     }
 
     public void clear() throws DataAccessException {
@@ -102,6 +103,7 @@ public class SQLGameDAO implements GameDAO {
                     if (param instanceof String p) ps.setString(i + 1, p);
                     else if (param instanceof Integer p) ps.setInt(i + 1, p);
                     else if (param instanceof GameData p) ps.setString(i + 1, p.toString());
+                    //else if (param instanceof ChessGame p) ps.setString(i + 1, new Gson().toJson(p, ChessGame.class)); // p.toString());//TEST
                     else if (param == null) ps.setNull(i + 1, NULL);
                 }
                 ps.executeUpdate();

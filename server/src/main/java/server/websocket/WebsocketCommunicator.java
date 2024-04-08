@@ -14,10 +14,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
-import webSocketMessages.userCommands.JoinObserver;
-import webSocketMessages.userCommands.JoinPlayer;
-import webSocketMessages.userCommands.MakeMove;
-import webSocketMessages.userCommands.UserGameCommand;
+import webSocketMessages.userCommands.*;
 
 import javax.xml.crypto.Data;
 import java.io.IOException;
@@ -85,15 +82,17 @@ public class WebsocketCommunicator {
             }
             case UserGameCommand.CommandType.MAKE_MOVE: {
                 MakeMove move = new Gson().fromJson(message, MakeMove.class);
-                makeMove(move, session);
+                makeMove(move);
                 break;
             }
             case UserGameCommand.CommandType.RESIGN: {
-                resign();
+                Resign resign = new Gson().fromJson(message, Resign.class);
+                resign(resign);
                 break;
             }
             case UserGameCommand.CommandType.LEAVE: {
-                leave();
+                Leave leave = new Gson().fromJson(message, Leave.class);
+                leave(leave, session);
                 break;
             }
             default: {
@@ -169,10 +168,10 @@ public class WebsocketCommunicator {
         sessionHandler.sendNotification(authToken, notification);
     }
 
-    private void makeMove(MakeMove command, Session session) throws IOException {//still have to execute move
-        System.out.println("MAKE MOVE");//TODO - apply move
+    private void makeMove(MakeMove command) throws IOException {//still have to execute move
+        System.out.println("MAKE MOVE");
         String authToken = command.getAuthString();
-        sessionHandler.add(authToken, session);
+        //sessionHandler.add(authToken, session);
         ChessMove move = command.getMove();
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
@@ -194,11 +193,36 @@ public class WebsocketCommunicator {
         sessionHandler.sendNotification(authToken, notification);
     }
 
-    private void resign() {
-        //TODO
+    private void resign(Resign resign) {
+        try {
+            if (!isPlayer(resign.getAuthString(), resign.getGameID())) {
+                String error = "You are not a player!";
+                sessionHandler.sendError(resign.getAuthString(), error);
+            }
+            else if (new SQLGameDAO().getGame(resign.getGameID()).game().isDone()) {
+                String error = "Game is already finished";
+                sessionHandler.sendError(resign.getAuthString(), error);
+            }
+            else {
+                SQLGameDAO gameDAO = new SQLGameDAO();
+                ChessGame game = gameDAO.getGame(resign.getGameID()).game();
+                game.setDone();
+                gameDAO.updateGame(resign.getGameID(), game);
+                //notify here
+                String notify = String.format("%s has resigned", resign.getUsername());
+                Notification notification = new Notification(notify);
+                sessionHandler.sendMessageToAll(resign.getAuthString(), notification);
+            }
+        }
+        catch (DataAccessException | IOException exception) {
+            System.out.println(exception.getMessage());//fix?
+        }
     }
-    private void leave() {
-
+    private void leave(Leave leave, Session session) throws IOException {
+        String notify = String.format("%s has left the game", leave.getUsername());
+        Notification notification = new Notification(notify);
+        sessionHandler.sendMessageToAll(leave.getAuthString(), notification);
+        sessionHandler.remove(leave.getAuthString());
     }
 
     private boolean validGame(int gameID) throws DataAccessException{
@@ -303,5 +327,16 @@ public class WebsocketCommunicator {
             }
         }
         return false;
+    }
+    private boolean isPlayer(String authToken, int gameID) {
+        try {
+            String username = new SQLAuthDAO().getAuth(authToken).username();
+            GameData gameData = new SQLGameDAO().getGame(gameID);
+            return username.equals(gameData.blackUsername()) || username.equals(gameData.whiteUsername());
+        }
+        catch (DataAccessException accessException) {
+            System.out.println(accessException.getMessage());
+            return false;
+        }
     }
 }

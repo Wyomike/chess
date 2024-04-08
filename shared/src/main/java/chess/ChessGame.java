@@ -14,6 +14,7 @@ public class ChessGame {
 
     ChessBoard board = new ChessBoard();
     TeamColor turn = TeamColor.WHITE;
+    boolean isDone = false;
 
     public ChessGame() {
         board.resetBoard();
@@ -272,6 +273,7 @@ public class ChessGame {
                 return noValidMoves;
             }
         }
+        setDone();
         return noValidMoves;
     }
 
@@ -284,7 +286,7 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         if (isInCheckmate(teamColor) && getTeamTurn() == teamColor) return true;
-        else return false;
+        else return isDone;
     }
 
     /**
@@ -314,5 +316,22 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return board;
+    }
+
+    public boolean isDone() {
+        return isDone;
+    }
+
+    public void setDone() {
+        isDone = true;
+    }
+
+    @Override
+    public String toString() {
+        return "ChessGame{" +
+                "board=" + board +
+                ", turn=" + turn +
+                ", isDone=" + isDone +
+                '}';
     }
 }
