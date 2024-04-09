@@ -16,51 +16,12 @@ import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.userCommands.*;
 
-import javax.xml.crypto.Data;
 import java.io.IOException;
 
 @WebSocket
 public class WebsocketCommunicator {
 
     SessionHandler sessionHandler = new SessionHandler();
-
-    //Spark.get("/echo/:msg", (req, res) -> "HTTP response: " + req.params(":msg"));
-
-//    @OnOpen
-//    public void open(javax.websocket.Session session) {
-//        System.out.println("OPENING");
-//        this.session = session;
-//    }
-
-//    @OnOpen
-//    public void run() { //replace this with a run class, call from client main.
-//        //Possibly want to make a unique class of ServerMessageObserver that acts like a message handler
-//        Spark.port(8080);//probably want a port parameter!
-//        Spark.webSocket("/connect", WebsocketCommunicator.class); //check on class here.
-//        Spark.get("/echo/:msg", (req, res) -> "HTTP response: " + req.params(":msg"));
-//
-//        try {
-////            String testurl = "http://localhost:8080/connect";
-////            URL url = new URL(testurl);
-////            ContainerProvider.getWebSocketContainer().connectToServer(this, url.toURI());
-//            URI uri = new URI("ws://localhost:8080/connect");
-//            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-//            this.session = container.connectToServer(this, uri);
-//        }
-//        catch (Exception e) {
-//            System.out.println(e.getMessage());
-//        }
-//
-//
-//        UserGameCommand message = new JoinPlayer("a", 1234, ChessGame.TeamColor.WHITE);
-//        String json = new Gson().toJson(message, UserGameCommand.class);
-//        try {
-//            session.getBasicRemote().sendText(json);
-//        }
-//        catch (Exception e) {//this is a dummy catch
-//            System.out.println(e.getMessage());
-//        }
-//    }
 
     //So, we will have the run have a few things happen, do some commands like server, then,
     //we'll do certain things when we receive those messages. These honestly might have to access DAOs?
@@ -99,34 +60,26 @@ public class WebsocketCommunicator {
                 System.out.print("How did you get here?");
             }
         }
-        System.out.printf("Received: %s", message);
-//        try {
-//            //session.getRemote().sendString(message);
-//        }
-//        catch (IOException exception) {
-//            System.out.println(exception.getMessage());
-//        }
-
-
+        System.out.printf("Received: %s \n", message);
     }
 
     private void joinPlayer(JoinPlayer command, Session session) throws IOException {
-        System.out.println("JOIN a player");
+        int gameID = command.getGameID();
         String authToken = command.getAuthString();
-        sessionHandler.add(authToken, session);
+        sessionHandler.add(authToken, gameID, session);
         if (!verifyAuth(authToken)) {
-            sessionHandler.sendError(authToken, "Invalid authtoken");
+            sessionHandler.sendError(authToken, gameID, "Invalid authtoken");
             return;
         }
         String color;
         try {
             if (!validJoin(command.getPlayerColor(), command.getGameID(), authToken)) {
-                sessionHandler.sendError(authToken, "Color already taken or not reserved");
+                sessionHandler.sendError(authToken, gameID, "Color already taken or not reserved");
                 return;
             }
         }
         catch (DataAccessException accessException) {
-            sessionHandler.sendError(authToken, accessException.getMessage());
+            sessionHandler.sendError(authToken, gameID, accessException.getMessage());
             return;
         }
 
@@ -137,71 +90,103 @@ public class WebsocketCommunicator {
             color = "BLACK";
         }//used in notification
         String notify = String.format("%s has joined as %s", command.getUsername(), color);
-        LoadGame loadGame = new LoadGame(command.getGameID());
-        Notification notification = new Notification(notify);
-        sessionHandler.sendMessage(authToken, loadGame);
-        sessionHandler.sendNotification(authToken, notification);
-
+        System.out.println("\n sending notification");
+        try {
+            LoadGame loadGame = new LoadGame(new SQLGameDAO().getGame(gameID), gameID);
+            Notification notification = new Notification(notify);
+            sessionHandler.sendMessage(authToken, gameID, loadGame);
+            sessionHandler.sendNotification(authToken, gameID, notification);
+        }
+        catch (DataAccessException accessException) {
+            System.out.println("Error fetching game: " + accessException.getMessage());
+        }
     }
     private void joinObserver(JoinObserver command, Session session) throws IOException {
+        int gameID = command.getGameID();
         System.out.println("JOIN observer");
         String authToken = command.getAuthString();
-        sessionHandler.add(authToken, session);
+        sessionHandler.add(authToken, gameID, session);
         if (!verifyAuth(authToken)) {
-            sessionHandler.sendError(authToken, "Invalid authtoken");
+            sessionHandler.sendError(authToken, gameID, "Invalid authtoken");
             return;
         }
         try {
             if (!validGame(command.getGameID())) {
-                sessionHandler.sendError(authToken, "Error retrieving game");
+                sessionHandler.sendError(authToken, gameID, "Error retrieving game");
                 return;
             }
         }
         catch (DataAccessException accessException) {
-            sessionHandler.sendError(authToken, accessException.getMessage());
+            sessionHandler.sendError(authToken, gameID, accessException.getMessage());
             return;
         }
         String notify = String.format("%s has joined as an observer", command.getUsername());
-        Notification notification = new Notification(notify);
-        LoadGame loadGame = new LoadGame(command.getGameID());
-        sessionHandler.sendMessage(authToken, loadGame);
-        sessionHandler.sendNotification(authToken, notification);
+        try {
+            Notification notification = new Notification(notify);
+            LoadGame loadGame = new LoadGame(new SQLGameDAO().getGame(gameID), gameID);
+            sessionHandler.sendMessage(authToken, gameID, loadGame);
+            sessionHandler.sendNotification(authToken, gameID, notification);
+            System.out.println("have sent notify observe");
+        }
+        catch (DataAccessException accessException) {
+            System.out.println("Error fetching game: " + accessException.getMessage());
+        }
     }
 
     private void makeMove(MakeMove command) throws IOException {//still have to execute move
+        int gameID = command.getGameID();
         System.out.println("MAKE MOVE");
         String authToken = command.getAuthString();
-        //sessionHandler.add(authToken, session);
         ChessMove move = command.getMove();
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
         try {
             if (!validMove(authToken, command.getGameID(), move)) {//here handle invalid gameID
-                sessionHandler.sendError(authToken, "Invalid move");
+                sessionHandler.sendError(authToken, gameID, "Invalid move");
+                System.out.println("\nreturned false");
                 return;
             }
         }
         catch (DataAccessException accessException) {
-            sessionHandler.sendError(authToken, accessException.getMessage());
+            sessionHandler.sendError(authToken, gameID, accessException.getMessage());
+            System.out.println("\nreturned error");
             return;
         }
-        String notify = String.format("%s has moved the piece at %d,%d to %d,%d", command.getUsername(),
-                start.getColumn(), start.getRow(), end.getColumn(), end.getRow());
+        Notification notification = getNotification(command, start, end);
+        try {
+            LoadGame loadGame = new LoadGame(new SQLGameDAO().getGame(gameID), gameID);
+            sessionHandler.sendMessageToAll(authToken, gameID, loadGame);
+            sessionHandler.sendNotification(authToken, gameID, notification);
+        }
+        catch (DataAccessException accessException) {
+            System.out.println("Error fetching game: " + accessException.getMessage());
+        }
+    }
+
+    private static Notification getNotification(MakeMove command, ChessPosition start, ChessPosition end) {
+        String[] chessLetters = new String[]{"a", "b", "c", "d", "e", "f", "g", "h"};
+        String startCol = "";
+        String endCol = "";
+        for (int i = 0; i < 8; ++i) {
+            if (start.getColumn() == i) startCol = chessLetters[i - 1];
+            if (end.getColumn() == i) endCol = chessLetters[i - 1];
+        }
+        String notify = String.format("%s has moved the piece at %s,%d to %s,%d", command.getUsername(),
+                startCol, start.getRow(), endCol, end.getRow());
         Notification notification = new Notification(notify);
-        LoadGame loadGame = new LoadGame(command.getGameID());
-        sessionHandler.sendMessageToAll(authToken, loadGame);
-        sessionHandler.sendNotification(authToken, notification);
+        return notification;
     }
 
     private void resign(Resign resign) {
+        int gameID = resign.getGameID();
         try {
             if (!isPlayer(resign.getAuthString(), resign.getGameID())) {
                 String error = "You are not a player!";
-                sessionHandler.sendError(resign.getAuthString(), error);
+                sessionHandler.sendError(resign.getAuthString(), gameID, error);
             }
             else if (new SQLGameDAO().getGame(resign.getGameID()).game().isDone()) {
                 String error = "Game is already finished";
-                sessionHandler.sendError(resign.getAuthString(), error);
+                sessionHandler.sendError(resign.getAuthString(), gameID, error);
             }
             else {
                 SQLGameDAO gameDAO = new SQLGameDAO();
@@ -211,7 +196,7 @@ public class WebsocketCommunicator {
                 //notify here
                 String notify = String.format("%s has resigned", resign.getUsername());
                 Notification notification = new Notification(notify);
-                sessionHandler.sendMessageToAll(resign.getAuthString(), notification);
+                sessionHandler.sendMessageToAll(resign.getAuthString(), gameID, notification);
             }
         }
         catch (DataAccessException | IOException exception) {
@@ -219,10 +204,18 @@ public class WebsocketCommunicator {
         }
     }
     private void leave(Leave leave, Session session) throws IOException {
+        int gameID = leave.getGameID();
         String notify = String.format("%s has left the game", leave.getUsername());
-        Notification notification = new Notification(notify);
-        sessionHandler.sendMessageToAll(leave.getAuthString(), notification);
-        sessionHandler.remove(leave.getAuthString());
+        try {
+            new SQLGameDAO().leavePlayer(leave.getUsername(), leave.getGameID());
+            Notification notification = new Notification(notify);
+            sessionHandler.sendNotification(leave.getAuthString(), gameID, notification);
+            System.out.println("Such and such has left the game");
+            sessionHandler.remove(leave.getAuthString(), gameID);
+        }
+        catch (DataAccessException accessException) {
+            System.out.println(accessException.getMessage());
+        }
     }
 
     private boolean validGame(int gameID) throws DataAccessException{

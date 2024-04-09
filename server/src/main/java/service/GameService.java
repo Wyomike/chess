@@ -13,7 +13,7 @@ public class GameService {
         this.gameDAO = gameDAO;
     }
 
-    public Collection<GameData> listGames(String authToken) throws DataAccessException { //TODO figure out how return list.
+    public Collection<GameData> listGames(String authToken) throws DataAccessException {
         if (authDAO.getAuth(authToken) == null) throw new DataAccessException("Error: unauthorized");
         return gameDAO.listGame();
     }

@@ -5,6 +5,9 @@ import server.ServerFacade;
 //import Server.WebsocketCommunicator;
 import chess.*;
 import model.GameData;
+import spark.Response;
+import websocket.MessageHandler;
+import websocket.WebSocketFacade;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -23,13 +26,17 @@ public class Menu {//This is client? maybe I should refactor it to that.
     private Scanner scanner = new Scanner(System.in);
     private ChessBoardDraw boardDraw;
     private ServerFacade facade;
-    private ChessGame game;
+    private WebSocketFacade wsFacade;
+    private MessageHandler messageHandler;
+    private GameData game;
     ArrayList<GameData> games = null;
 
-    String authToken = null;
+    private String authToken = null;
+    private String username = null;
+    int gameID;
 
     public Menu(ChessBoard chess, int url) {
-        boardDraw = new ChessBoardDraw(chess);
+        //boardDraw = new ChessBoardDraw(chess);
         facade = new ServerFacade(url);
     }
 
@@ -95,7 +102,7 @@ public class Menu {//This is client? maybe I should refactor it to that.
             loggedIn();
         }
         catch (IOException | ResponseException exception) {
-            out.println("err");
+            out.println("err" + exception.getMessage());
         }
     }
     private void listGames() {
@@ -106,6 +113,9 @@ public class Menu {//This is client? maybe I should refactor it to that.
                 GameData game = games.get(i);
                 out.print(i);
                 out.print(": ");
+                if (game.game().isDone()) {
+                    out.print("FINISHED ");
+                }
                 out.print("Game name - ");
                 out.print(game.gameName());
                 out.print("   ID - ");
@@ -120,7 +130,7 @@ public class Menu {//This is client? maybe I should refactor it to that.
             loggedIn();
         }
         catch (IOException | ResponseException exception) {
-            out.println("err");
+            out.println("err" + exception.getMessage());
         }
     }
 
@@ -133,11 +143,13 @@ public class Menu {//This is client? maybe I should refactor it to that.
         try {
             //out.print("Your auth token: ");
             authToken = facade.register(username, password, email).authToken();
+            this.username = username;
+            messageHandler = new MessageHandler(facade, authToken, this);
             //out.println(authToken);
             loggedIn();
         }
         catch (IOException | ResponseException exception) {
-            out.println("err");
+            out.println("err" + exception.getMessage());
         }
     }
     private void login() {
@@ -148,11 +160,14 @@ public class Menu {//This is client? maybe I should refactor it to that.
         try {
             //out.print("Your auth token: ");
             authToken = facade.login(username, password).authToken();
+            this.username = username;
+            messageHandler = new MessageHandler(facade, authToken, this);
             //out.println(authToken);
             loggedIn();
         }
         catch (IOException | ResponseException exception) {
-            out.println("err");
+            out.println("err: " + exception.getMessage());
+            initial();
         }
     }
     private void logout() {
@@ -162,7 +177,7 @@ public class Menu {//This is client? maybe I should refactor it to that.
             initial();
         }
         catch (IOException | ResponseException exception) {
-            out.println("err");
+            out.println("err" + exception.getMessage());
         }
     }
 
@@ -214,13 +229,22 @@ public class Menu {//This is client? maybe I should refactor it to that.
                 out.println("Invalid index");
                 loggedIn();
             }
-            facade.joinGame(color, games.get(gameID).gameID(), authToken);
-            game = games.get(gameID).game(); //When join game, set menu's game to that game
-            boardDraw.drawBoth();
-            loggedIn();
+            this.gameID = games.get(gameID).gameID();
+            facade.joinGame(color, this.gameID, authToken);
+            wsFacade = new WebSocketFacade(facade.getServerUrl(), messageHandler);
+            if (color.equals("WHITE")) {
+                ChessGame.TeamColor teamColor = ChessGame.TeamColor.WHITE;
+                wsFacade.joinPlayer(username, authToken, this.gameID, teamColor);
+            }
+            else {
+                ChessGame.TeamColor teamColor = ChessGame.TeamColor.BLACK;
+                wsFacade.joinPlayer(username, authToken, this.gameID, teamColor);
+            }
+            game = messageHandler.getGame();
+            inGame();
         }
         catch (IOException | ResponseException exception) {
-            out.println("err");
+            out.println("err" + exception.getMessage());
             loggedIn();
         }
     }
@@ -251,22 +275,21 @@ public class Menu {//This is client? maybe I should refactor it to that.
                 out.println("Invalid index");
                 loggedIn();
             }
-            out.print("Game exists\n");//, if TA asks tell them slack says we only draw an example board at this point");
-
-            game = games.get(gameID).game(); //When watch game, set menu's game to that game
-            boardDraw.drawBoard();
-
-            highlightMoves();
-            loggedIn();
+            this.gameID = games.get(gameID).gameID();
+            wsFacade = new WebSocketFacade(facade.getServerUrl(), messageHandler);
+            wsFacade.joinObserver(username, authToken, this.gameID);
+            game = messageHandler.getGame();
+            //System.out.print("Done getting game");
+            watching();
         }
         catch (IOException | ResponseException exception) {
-            out.println("err");
+            out.println("err" + exception.getMessage());
         }
     }
 
     private void inGame() {//maybe give an int parameter for which game.
+        game = messageHandler.getGame();
         out.println("At any time enter 0 for a help menu");
-        out.println("");
         out.print("Enter the number of any menu option\n");
         out.print("1.\tRedraw board\n");
         out.print("2.\tMake move\n");
@@ -276,21 +299,125 @@ public class Menu {//This is client? maybe I should refactor it to that.
         out.print("6.\tHelp\n");
         String line = scanner.nextLine();
         switch (line) {
-            case "1" -> boardDraw.drawBoard(); //Will have to pass parameter here eventually.
-            //case "2" -> makeMove();
-            case "3" -> highlightMoves();
-            //case "4" -> leave();
-            //case "5" -> resign();
-            //case "6" -> helpGame();
+            case "1" -> {
+                drawBoard();
+                inGame(); //Will have to pass parameter here eventually.
+            }
+            case "2" -> makeMove();
+            case "3" -> {
+                highlightMoves();
+                inGame();
+            }
+            case "4" -> leave();
+            case "5" -> resign();
+            case "6" -> helpGame();
             default -> {
                 out.println("Please enter a number from 1 to 6");
                 inGame();
             }
         }
     }
+    private void helpGame() {
+        out.print("1.\tRedraw board - redraw the current board from your perspective\n");
+        out.print("2.\tMake move - make a move and advance the game\n");
+        out.print("3.\tHighlight legal moves - highlight the legal moves of a piece\n");
+        out.print("4.\tLeave - leave a game and leave the spot open for another\n");
+        out.print("5.\tResign - forfeit the game\n");
+        out.print("6.\tHelp - display this menu\n");
+        inGame();
+    }
+    public void drawBoard() {
+        boardDraw = new ChessBoardDraw(game.game().getBoard());
+        if (username.equals(game.whiteUsername())) {
+            boardDraw.drawBoard();
+        }
+        else if (username.equals(game.blackUsername())) {
+            boardDraw.drawBoardReversed();
+        }
+        else {
+            boardDraw.drawBoard();
+        }
+        //inGame();
+    }
+
+    private void makeMove() {
+        try {
+            out.println("Enter the position of the piece you'd like to move");
+            ChessPosition start = parsePosition();
+            out.println("Enter the position to which you'd like to move");
+            ChessPosition end = parsePosition();
+            ChessPiece.PieceType promotion = checkPromotion(start, end);
+            ChessMove move = new ChessMove(start, end, promotion);
+            wsFacade.makeMove(username, authToken, gameID, move);
+        }
+        catch (ResponseException responseException) {
+            out.println(responseException.getMessage());
+        }
+        inGame();
+    }
+    private void leave() {
+        try {
+            wsFacade.Leave(username, authToken, gameID);
+            loggedIn();
+        }
+        catch (ResponseException responseException) {
+            out.println(responseException.getMessage());
+        }
+        loggedIn();
+    }
+    private void resign() {
+        try {
+            wsFacade.Resign(username, authToken, gameID);
+            loggedIn();
+        }
+        catch (ResponseException responseException) {
+            out.println(responseException.getMessage());
+        }
+        loggedIn();
+    }
+
+    private void watching() {
+        game = messageHandler.getGame();
+        out.println("At any time enter 0 for a help menu");
+        out.print("Enter the number of any menu option\n");
+        out.print("1.\tRedraw board\n");
+        out.print("2.\tHighlight legal moves\n");
+        out.print("3.\tLeave\n");
+        out.print("4.\tHelp\n");
+        String line = scanner.nextLine();
+        switch (line) {
+            case "1" -> {
+                drawBoard();
+                watching();
+            }
+            case "2" -> {
+                highlightMoves();
+                watching();
+            }
+            case "3" -> leave();
+            case "4", "0" -> helpWatching();
+            default -> {
+                out.println("Please enter a number from 1 to 4");
+                watching();
+            }
+        }
+    }
+    private void helpWatching() {
+        out.println("At any time enter 0 for a help menu");
+        out.print("1.\tRedraw board - redraw the board from white's perspective\n");
+        out.print("2.\tHighlight legal moves - Highlight the legal moves a piece can make\n");
+        out.print("3.\tLeave - return to the post-login menu\n");
+        out.print("4.\tHelp - display this menu\n");
+        watching();
+    }
 
     private void highlightMoves() {
-        String[] chessLetters = new String[]{"a","b","c","d","e","f","g","h"};
+        ChessPosition pos = parsePosition();
+        boardDraw.highlightMoves(parseMoves(game.game().validMoves(pos)), pos.getRow(), pos.getColumn());
+    }
+
+    private ChessPosition parsePosition() {
+        String[] chessLetters = new String[]{"a", "b", "c", "d", "e", "f", "g", "h"};
         out.println("Enter a coordinate with a letter a-h then a number 1-8, separated by a space. (i.e a 1, or h 4)");
         //TODO - enter helpful text, check entries
         String colLetter = scanner.next();
@@ -301,8 +428,7 @@ public class Menu {//This is client? maybe I should refactor it to that.
         }
         //if col = -1 return error
         scanner.nextLine();
-        ChessPosition pos = new ChessPosition(row, col);
-        boardDraw.highlightMoves(parseMoves(game.validMoves(pos)), row, col);
+        return new ChessPosition(row, col);
     }
 
     private boolean[][] parseMoves(Collection<ChessMove> moves) {
@@ -322,5 +448,31 @@ public class Menu {//This is client? maybe I should refactor it to that.
             }
         }
         return validSpaces;
+    }
+
+    private ChessPiece.PieceType checkPromotion(ChessPosition start, ChessPosition end) {
+        ChessPiece startPiece = game.game().getBoard().getPiece(start);
+        if (startPiece == null) {
+            return null;
+        }
+        if ((startPiece.getTeamColor() == ChessGame.TeamColor.WHITE && start.getRow() == 7) || (startPiece.getTeamColor() == ChessGame.TeamColor.BLACK && start.getRow() == 1)) {
+            out.println("Enter a piece type to promote to (cannot be pawn or king), such as QUEEN, or KNIGHT");
+            String line = scanner.nextLine();
+            switch (line) {
+                case ("QUEEN"): return ChessPiece.PieceType.QUEEN;
+                case ("BISHOP"): return ChessPiece.PieceType.BISHOP;
+                case ("ROOK"): return ChessPiece.PieceType.ROOK;
+                case ("KNIGHT"): return ChessPiece.PieceType.KNIGHT;
+                default: {
+                    out.println("Err: please enter a valid piece type (QUEEN, BISHOP, ROOK, or KNIGHT");
+                    return checkPromotion(start, end);
+                }
+            }
+        }
+        return null;
+    }
+
+    public void setGame(GameData game) {
+        this.game = game;
     }
 }

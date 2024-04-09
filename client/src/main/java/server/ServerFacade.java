@@ -52,6 +52,9 @@ public class ServerFacade {
             System.out.println(ioException.getMessage());
         }
     }
+    public String getServerUrl() {
+        return serverUrl;
+    }
 
     private HttpURLConnection prepConnection(String method, String path) throws IOException {
         URL url = new URL(serverUrl + path);

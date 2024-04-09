@@ -1,5 +1,7 @@
 package webSocketMessages.serverMessages;
 
+import model.GameData;
+
 import java.util.Objects;
 
 /**
@@ -10,14 +12,19 @@ import java.util.Objects;
  */
 public class LoadGame extends ServerMessage {
     //ServerMessageType serverMessageType;
-    private final int game;
+    private final GameData game;
+    private final int gameID;
 
-    public LoadGame(int gameID) {
+    public LoadGame(GameData game, int gameID) {
         super(ServerMessageType.LOAD_GAME);
-        this.game = gameID;
+        this.game = game;
+        this.gameID = gameID;
     }
 
-    public int getGame() {
+    public int getGameID() {
+        return gameID;
+    }
+    public GameData getGame() {
         return game;
     }
 
@@ -31,8 +38,4 @@ public class LoadGame extends ServerMessage {
         return getServerMessageType() == that.getServerMessageType();
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getServerMessageType());
-    }
 }

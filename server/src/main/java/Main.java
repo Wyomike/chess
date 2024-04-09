@@ -6,6 +6,6 @@ public class Main {
         var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
         Server server = new Server();
         server.run(8080);
-        System.out.println("♕ 240 Chess Server: " + piece);
+        System.out.println("♕ 240 Chess Server Web API: " + piece);
     }
 }

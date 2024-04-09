@@ -52,6 +52,7 @@ public class ChessBoardDraw {
             out.print("\n");
         }
         drawHeader(true);
+        out.print(SET_BG_COLOR_WHITE);
     }
 
     public void highlightMoves(boolean[][] validSpaces, int row, int col) {

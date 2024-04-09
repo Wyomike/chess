@@ -1,6 +1,9 @@
 package server;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import model.*;
 
@@ -12,6 +15,8 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class HttpHandler {
     String serverUrl;
@@ -88,11 +93,14 @@ public class HttpHandler {
         if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) { //handle input
             InputStream responseBody = connection.getInputStream();
             InputStreamReader reader = new InputStreamReader(responseBody);
-            Type listType = new TypeToken<ArrayList<GameData>>(){}.getType();
-            ArrayList<GameData> response = new Gson().fromJson(reader, listType);
-            //Object response = new Gson().fromJson(reader, Object.class);//POSSIBLY AN ERROR
+            //Type listType = new TypeToken<ArrayList<GameData>>(){}.getType();
+            Type mapType = new TypeToken<Map<String, ArrayList<GameData>>>(){}.getType();
+            Map<String, ArrayList<GameData>> response = new Gson().fromJson(reader, mapType);
+//            JsonObject jsonObject = JsonParser.parseString(reader.toString()).getAsJsonObject();
+//            JsonArray jsonArray = jsonObject.getAsJsonArray("games");
+//            ArrayList<GameData> response = new Gson().fromJson(jsonArray, listType);
             connection.disconnect();
-            return response;
+            return response.get("games");
         }
         else { //handle input
             InputStream responseBody = connection.getInputStream();
@@ -107,7 +115,7 @@ public class HttpHandler {
 
         connection.setRequestProperty("Authorization", authToken);
         try(OutputStream requestBody = connection.getOutputStream()) { //handle output
-            String reqData = new Gson().toJson(gameName);
+            String reqData = new Gson().toJson(new GameData(0, null, null, gameName, null));
             requestBody.write(reqData.getBytes());
         }
         catch (Exception ioException) {

@@ -25,7 +25,7 @@ public class GameHandler {
             res.type("application/json");
             var list = service.listGames(authToken).toArray();
             res.status(200);
-            //return new Gson().toJson(list);
+            //String json = new Gson().toJson(list);
             return new Gson().toJson(Map.of("games", list));
         }
         catch (DataAccessException accessException) {
@@ -38,6 +38,7 @@ public class GameHandler {
         try {
             //System.out.print("...");
             //System.out.println(req.body());
+            String body = req.body();
             GameData game = new Gson().fromJson(req.body(), GameData.class);
             GameData resultGame = service.createGame(game.gameName(), authToken);
             res.status(200);

@@ -11,12 +11,12 @@ public class JoinPlayer extends UserGameCommand {
         this.gameID = gameID;
         this.playerColor = playerColor;
     }
-    public JoinPlayer (JoinPlayer old) {
-        super(old.getUsername(), old.getAuthString());
-        this.commandType = CommandType.JOIN_PLAYER;
-        this.gameID = old.getGameID();
-        this.playerColor = old.getPlayerColor();
-    }
+//    public JoinPlayer (JoinPlayer old) {
+//        super(old.getUsername(), old.getAuthString());
+//        this.commandType = CommandType.JOIN_PLAYER;
+//        this.gameID = old.getGameID();
+//        this.playerColor = old.getPlayerColor();
+//    }
 
     //protected UserGameCommand.CommandType commandType;
 
