@@ -412,7 +412,6 @@ public class Menu {
     private ChessPosition parsePosition() {
         String[] chessLetters = new String[]{"a", "b", "c", "d", "e", "f", "g", "h"};
         out.println("Enter a coordinate with a letter a-h then a number 1-8, separated by a space. (i.e a 1, or h 4)");
-        //TODO - enter helpful text, check entries
         String colLetter = scanner.next();
         int row = Integer.parseInt(scanner.next());
         int col = -1;

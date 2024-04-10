@@ -34,7 +34,6 @@ public class WebSocketFacade extends Endpoint {
                 @Override
                 public void onMessage(String message) {
                     ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                    //System.out.println(message);
                     switch (serverMessage.getServerMessageType()) {
                         case ServerMessage.ServerMessageType.ERROR: {
                             messageHandler.error(message);
@@ -58,8 +57,7 @@ public class WebSocketFacade extends Endpoint {
                             System.out.print("How did you get here?");
                         }
                     }
-                    //commandHandler.notify(gameCommand);
-                }//TODO - set up for notify on check and checkmate
+                }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new ResponseException(ex.getMessage());
