@@ -6,7 +6,6 @@ import chess.*;
 import model.GameData;
 import websocket.MessageHandler;
 import websocket.WebSocketFacade;
-import spark.*;
 
 import java.io.IOException;
 import java.io.PrintStream;
