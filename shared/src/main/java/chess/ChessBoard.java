@@ -11,10 +11,6 @@ import java.util.Arrays;
 public class ChessBoard {
 
     ChessPiece[][] board = new ChessPiece[8][8];
-    //ChessPiece[] whitePieces = new ChessPiece[12]; //actually a list would probably be better...
-    //ChessPiece[] blackPieces = new ChessPiece[12];
-    //ChessPosition whiteKing = new ChessPosition(0, 4);
-    //ChessPosition blackKing = new ChessPosition(7, 4);
 
     @Override
     public boolean equals(Object o) {

@@ -22,21 +22,10 @@ public class KnightMovement implements PieceMovement {
         if (isValidMove(start, end, board)) moves.add(new ChessMove(start, end, null));
         end = new ChessPosition(start.getRow() - 2, start.getColumn() - 1);
         if (isValidMove(start, end, board)) moves.add(new ChessMove(start, end, null));
-
         return moves;
     }
 
     public boolean isValidMove(ChessPosition start, ChessPosition end, ChessBoard board) {
-        if (!isInBoard(end)) {
-            return false;
-        }
-        else if (board.getPiece(end) != null) {
-            if (board.getPiece(end).getTeamColor() != board.getPiece(start).getTeamColor()) return true;
-            else return false;
-        }
-        return true;
-    }
-    public boolean isInBoard(ChessPosition position) {
-        return position.getRow() <= 8 && position.getRow() >= 1 && position.getColumn() >= 1 && position.getColumn() <= 8;
+        return new SingleMovement().isValidMove(start, end, board);
     }
 }

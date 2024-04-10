@@ -26,7 +26,6 @@ public class SQLUserDAO implements UserDAO {
         UserData data = new UserData(username, hashedPassword, email);
 
         String statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
-        //String json = new Gson().toJson(data);
         executeUpdate(statement, username, hashedPassword, email);
         return data;
     }

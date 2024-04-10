@@ -17,9 +17,6 @@ public class MemoryAuthDAO implements AuthDAO {
         return data;
     }
 
-    //public Collection<AuthData> listAuth() {
-    //    return authsData.values();
-    //}
     @Override
     public AuthData getAuth(String id) {
         return authsData.get(id);

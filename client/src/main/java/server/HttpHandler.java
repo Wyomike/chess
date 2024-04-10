@@ -93,12 +93,8 @@ public class HttpHandler {
         if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) { //handle input
             InputStream responseBody = connection.getInputStream();
             InputStreamReader reader = new InputStreamReader(responseBody);
-            //Type listType = new TypeToken<ArrayList<GameData>>(){}.getType();
             Type mapType = new TypeToken<Map<String, ArrayList<GameData>>>(){}.getType();
             Map<String, ArrayList<GameData>> response = new Gson().fromJson(reader, mapType);
-//            JsonObject jsonObject = JsonParser.parseString(reader.toString()).getAsJsonObject();
-//            JsonArray jsonArray = jsonObject.getAsJsonArray("games");
-//            ArrayList<GameData> response = new Gson().fromJson(jsonArray, listType);
             connection.disconnect();
             return response.get("games");
         }
