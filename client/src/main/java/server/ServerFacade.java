@@ -55,15 +55,4 @@ public class ServerFacade {
     public String getServerUrl() {
         return serverUrl;
     }
-
-    private HttpURLConnection prepConnection(String method, String path) throws IOException {
-        URL url = new URL(serverUrl + path);
-
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-        connection.setReadTimeout(5000);
-        connection.setRequestMethod(method);
-        connection.setDoOutput(true);
-        return connection;
-    }
 }

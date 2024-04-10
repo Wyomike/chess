@@ -419,7 +419,10 @@ public class Menu {
         for (int i = 0; i < 8; ++i) {
             if (colLetter.equals(chessLetters[i])) col = i + 1;
         }
-        //if col = -1 return error
+        if (col == -1 || (row < 1 || row > 8)) {
+            out.println("Err: invalid position, please enter a letter a-h and a number 1-8 separated by a space");
+            return parsePosition();
+        }
         scanner.nextLine();
         return new ChessPosition(row, col);
     }

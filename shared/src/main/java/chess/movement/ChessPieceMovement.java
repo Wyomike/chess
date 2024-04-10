@@ -1,4 +1,9 @@
-package chess;
+package chess.movement;
+
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 
 import java.util.Collection;
 //MAKE THIS A TEMPLATE CLASS!

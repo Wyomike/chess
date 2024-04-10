@@ -1,4 +1,7 @@
-package chess;
+package chess.movement;
+
+import chess.ChessBoard;
+import chess.ChessPosition;
 
 public class SingleMovement {
     public boolean isValidMove(ChessPosition start, ChessPosition end, ChessBoard board) {
