@@ -79,9 +79,10 @@ public class SQLGameDAO implements GameDAO {
         String statement = "UPDATE gameData SET game = ? where id = ?";
         executeUpdate(statement, chessGame, id);
     }
-    public void leavePlayer(String player, int id) throws DataAccessException {
+    public void leavePlayer(String auth, int id) throws DataAccessException {
         GameData check = getGame(id);
-        if (player.equals(check.whiteUsername())) {
+        String leave = new SQLAuthDAO().getAuth(auth).username();
+        if (leave.equals(check.whiteUsername())) {
             String statement = "UPDATE gameData SET whiteUsername = null where id = ?";
             executeUpdate(statement, id);
         }

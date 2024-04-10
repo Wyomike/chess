@@ -207,7 +207,7 @@ public class WebsocketCommunicator {
         int gameID = leave.getGameID();
         String notify = String.format("%s has left the game", leave.getUsername());
         try {
-            new SQLGameDAO().leavePlayer(leave.getUsername(), leave.getGameID());
+            new SQLGameDAO().leavePlayer(leave.getAuthString(), leave.getGameID());
             Notification notification = new Notification(notify);
             sessionHandler.sendNotification(leave.getAuthString(), gameID, notification);
             System.out.println("Such and such has left the game");

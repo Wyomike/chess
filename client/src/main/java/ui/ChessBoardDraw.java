@@ -18,13 +18,6 @@ public class ChessBoardDraw {
         this.board = board.getBoard();
     }
 
-    public void drawBoth() {
-        drawBoard();
-        setBlack();
-        out.println();
-        drawBoardReversed();
-        out.print(SET_BG_COLOR_WHITE);
-    }
     public void drawBoard() {
         drawHeader(false);
         for (int i = 0; i < 8; ++i) {

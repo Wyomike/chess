@@ -113,22 +113,25 @@ public class Menu {
                 if (game.game().isDone()) {
                     out.print("FINISHED ");
                 }
-                out.print("Game name - ");
-                out.print(game.gameName());
-                out.print("   ID - ");
-                out.print(game.gameID());
-                out.print("   White - ");
-                out.print(game.whiteUsername());
-                out.print("   Black - ");
-                out.print(game.blackUsername());
+                listDetails(game);
                 out.print("\n");
             }
-            //out.println(facade.listGames(authToken));
             loggedIn();
         }
         catch (IOException | ResponseException exception) {
             out.println("err" + exception.getMessage());
         }
+    }
+
+    private void listDetails(GameData game) {
+        out.print("Game name - ");
+        out.print(game.gameName());
+        out.print("   ID - ");
+        out.print(game.gameID());
+        out.print("   White - ");
+        out.print(game.whiteUsername());
+        out.print("   Black - ");
+        out.print(game.blackUsername());
     }
 
     private void register() {
@@ -201,17 +204,7 @@ public class Menu {
             out.println("Games:\n");
             games = facade.listGames(authToken);
             for (int i = 0; i < games.size(); ++i) {
-                GameData game = games.get(i);
-                out.print(i);
-                out.print(": ");
-                out.print("Game name - ");
-                out.print(game.gameName());
-                out.print("   ID - ");
-                out.print(game.gameID());
-                out.print("   White - ");
-                out.print(game.whiteUsername());
-                out.print("   Black - ");
-                out.print(game.blackUsername());
+                listGames(i);
                 out.print("\n");
             }
             out.print("Enter the number of the game you'd like to join and the color you'd like to join as (WHITE or BLACK)\n");
@@ -250,20 +243,7 @@ public class Menu {
             out.println("Games:\n");
             games = facade.listGames(authToken);
             for (int i = 0; i < games.size(); ++i) {
-                GameData game = games.get(i);
-                out.print(i);
-                out.print(": ");
-                out.print("Game name - ");
-                out.print(game.gameName());
-                out.print("   ID - ");
-                out.print(game.gameID());
-                out.print("   White - ");
-                out.print(game.whiteUsername());
-                out.print("   Black - ");
-                out.print(game.blackUsername());
-                out.print("   Turn - ");
-                out.print(game.game().getTeamTurn());
-                out.print("\n");
+                listGames(i);
             }
             out.print("Enter the number of the game you'd like to watch\n");
             int gameID = Integer.parseInt(scanner.next());
@@ -282,6 +262,16 @@ public class Menu {
         catch (IOException | ResponseException exception) {
             out.println("err" + exception.getMessage());
         }
+    }
+
+    private void listGames(int i) {
+        GameData game = games.get(i);
+        out.print(i);
+        out.print(": ");
+        listDetails(game);
+        out.print("   Turn - ");
+        out.print(game.game().getTeamTurn());
+        out.print("\n");
     }
 
     private void inGame() {//maybe give an int parameter for which game.
@@ -334,7 +324,13 @@ public class Menu {
         else {
             boardDraw.drawBoard();
         }
-        //inGame();
+        out.print("Turn: ");
+        if (game.game().getTeamTurn() == ChessGame.TeamColor.WHITE) {
+            out.print("WHITE\n");
+        }
+        else {
+            out.print("BLACK\n");
+        }
     }
 
     private void makeMove() {
@@ -354,7 +350,7 @@ public class Menu {
     }
     private void leave() {
         try {
-            wsFacade.Leave(username, authToken, gameID);
+            wsFacade.leave(username, authToken, gameID);
             loggedIn();
         }
         catch (ResponseException responseException) {
@@ -364,7 +360,7 @@ public class Menu {
     }
     private void resign() {
         try {
-            wsFacade.Resign(username, authToken, gameID);
+            wsFacade.resign(username, authToken, gameID);
             loggedIn();
         }
         catch (ResponseException responseException) {

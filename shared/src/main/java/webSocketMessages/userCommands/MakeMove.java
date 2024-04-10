@@ -13,29 +13,8 @@ public class MakeMove extends UserGameCommand {
         this.move = move;
     }
 
-    //protected UserGameCommand.CommandType commandType;
-
     private final int gameID;
     private final ChessMove move;
-
-    public UserGameCommand.CommandType getCommandType() {
-        return this.commandType;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (!(o instanceof UserGameCommand))
-            return false;
-        UserGameCommand that = (UserGameCommand) o;
-        return getCommandType() == that.getCommandType() && Objects.equals(getAuthString(), that.getAuthString());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getCommandType(), getAuthString());
-    }
 
     public int getGameID() {
         return gameID;
