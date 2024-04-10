@@ -2,12 +2,11 @@ package ui;
 
 import server.ResponseException;
 import server.ServerFacade;
-//import Server.WebsocketCommunicator;
 import chess.*;
 import model.GameData;
-import spark.Response;
 import websocket.MessageHandler;
 import websocket.WebSocketFacade;
+import spark.*;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -17,11 +16,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Scanner;
 
-//import static ui.EscapeSequences.RESET_BG_COLOR;
 import static ui.EscapeSequences.SET_BG_COLOR_WHITE;
 import static ui.EscapeSequences.SET_TEXT_COLOR_BLACK;
 
-public class Menu {//This is client? maybe I should refactor it to that.
+public class Menu {
     private PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
     private Scanner scanner = new Scanner(System.in);
     private ChessBoardDraw boardDraw;

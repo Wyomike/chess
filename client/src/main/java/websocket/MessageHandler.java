@@ -1,17 +1,13 @@
 package websocket;
 
-import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
 import server.ServerFacade;
-import ui.ChessBoardDraw;
 import ui.Menu;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
-import webSocketMessages.userCommands.UserGameCommand;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class MessageHandler {
     ServerFacade facade;
